@@ -3,10 +3,18 @@
 %variables
 RATE=100
 SIZE={64, 128, 256, 512, 1024}
-THREADS={1, 2, 4, 6, 8, 10, 12, 14, 16}
 BATCH={32, 64, 128, 256, 512, 992}
+THREADS={1, 2, 4, 6, 8}
+
+//SIZE={1024}
+//BATCH={256}
+//THREADS={8}
 
 %config
+graph_force_diagonal_labels=true
+graph_filter_by={AVG-CYCLES:LOSE-RATE}
+var_lim={LOSE-RATE:0-}
+var_lim={AVG-CYCLES:0-}
 timeout=60
 n_runs=5
 
@@ -26,7 +34,7 @@ sudo /etinfo/users/2021/mvanliefde/fastclick-gpu/bin/click --dpdk -c 0xffff -n 4
 %script@joyeux sudo=true delay=5
 
 export LD_LIBRARY_PATH=/etinfo/users/2021/rvanhauwaert/dpdk-23.03/dpdk/install/lib/x86_64-linux-gnu/:$LD_LIBRARY_PATH
-sudo LD_LIBRARY_PATH=$LD_LIBRARY_PATH /etinfo/users/2021/rvanhauwaert/dpdk-23.03/Pktgen-DPDK/usr/local/bin/pktgen -l 0-7nw -n 4 -a 0000:01:00.0 --file-prefix npf -- -m [1/2/3:4/5/6].0 -P -f cfg.lua
+sudo LD_LIBRARY_PATH=$LD_LIBRARY_PATH /etinfo/users/2021/rvanhauwaert/dpdk-23.03/Pktgen-DPDK/usr/local/bin/pktgen -l 0-7 -n 4 -a 0000:01:00.0 --file-prefix npf -- -m [1/2/3:4/5/6].0 -P -f cfg.lua
 
 
 %file gpu-bounce.click
@@ -39,27 +47,25 @@ sudo LD_LIBRARY_PATH=$LD_LIBRARY_PATH /etinfo/users/2021/rvanhauwaert/dpdk-23.03
  */
 
 // Size of the mempool to allocate
-// Be sure all the packets in input + in the pipelines can be in the pool, or you will suffer losses
-define ($nb_mbuf 4194303)
+define ($nb_mbuf 131071)
 
 // Number of descriptors per ring
-define ($ndesc 4096)
+define ($ndesc 2048)
 
-// An batch must contain at most 1024 packets,
-// so limit the batch to 1024 - FromDPDKDevice.BURST
-// by default: 1024 - 32 = 992
+// A batch must contain at most 1024 packets
 define ($batch ${BATCH})
+define ($burst 32)
+define ($minbatch $((${BATCH}-32))) // has to be $batch - $burst
 
 define ($maxthreads ${THREADS})
 
 info :: DPDKInfo(NB_SOCKET_MBUF 0, NB_SOCKET_MBUF $(nb_mbuf))
 
-FromDPDKDevice(0, NDESC $ndesc, MAXTHREADS $maxthreads) 
-    -> MinBatch($batch, TIMER 10) 
-    -> GPUEtherMirror() 
-    -> ToDPDKDevice(0, NDESC $ndesc, MAXTHREADS $maxthreads)
+FromDPDKDevice(0, NDESC $ndesc, MAXTHREADS $maxthreads, BURST $burst) 
+    -> MinBatch($minbatch, TIMER 10) 
+    -> GPUEtherMirror(VERBOSE false, CAPACITY 4096, MAX_BATCH $batch, THREAD_BLOCKS_PER_QUEUE 1) 
+    -> ToDPDKDevice(0, NDESC $ndesc, MAXTHREADS $maxthreads, BLOCKING true)
 
-/* For debug purposes */
 
 
 
@@ -149,9 +155,9 @@ avg_cycles = pkt_stats[0].latency.avg_cycles
 num_rx = statRx.ipackets
 num_tx = statRx.opackets
 mbits_rx = pktgen.portStats("all", "rate")[0].mbits_rx
-print("\n\n RESULT-RX-RATE " .. (mbits_rx / 15) / 100 .. "\n\n")
-print("\n\n RESULT-AVG-CYCLES " .. avg_cycles .. "\n\n")
--- print("\n\n RESULT-LOSE-RATE " .. 1-(num_rx / (num_rx)) .. "\n\n")
+print("\n\n RESULT-RX-NB-PKT " .. num_rx / 15 .. "\n\n")
+print("\n\n RESULT-RX-RATE " .. num_rx / 15 * 8 * ${SIZE} / 1000000000 .. "\n\n")
+print("\n\n RESULT-LAT " .. avg_cycles / 3000000000 .. "\n\n")
 print("\n\n RESULT-LOSE-RATE " .. 1-(num_rx / (num_tx)) .. "\n\n")
 
 pktgen.quit()

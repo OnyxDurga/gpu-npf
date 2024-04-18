@@ -3,12 +3,21 @@
 %variables
 RATE=100
 SIZE={64, 128, 256, 512, 1024}
-THREADS={1, 2, 4, 6, 8, 10, 12, 14, 16}
+THREADS={1, 2, 4, 6, 8}
+NDESC={2048}
+
+//SIZE={1024}
+//THREADS={4}
 
 %config
+graph_force_diagonal_labels=true
+graph_filter_by={AVG-CYCLES:LOSE-RATE}
+var_lim={LOSE-RATE:0-}
+var_lim={AVG-CYCLES:0-}
 timeout=60
 n_runs=5
 
+//n_runs=1
 
 
 %script sudo=true
@@ -17,6 +26,10 @@ sleep 3
 export LD_LIBRARY_PATH=/etinfo/users/2021/rvanhauwaert/dpdk-23.03/dpdk/install/lib/x86_64-linux-gnu/:$LD_LIBRARY_PATH
 sudo /etinfo/users/2021/rvanhauwaert/fastclick/bin/click --dpdk -c 0xffff -n 4 -a 98:00.0 --file-prefix npf -- dpdk-bounce.click
 
+//export PKG_CONFIG_PATH=/etinfo/users/2021/mvanliefde/dpdk/x86_64-native-linuxapp-gcc/install/lib/x86_64-linux-gnu/pkgconfig:$PKG_CONFIG_PATH
+//export LD_LIBRARY_PATH=/etinfo/users/2021/mvanliefde/dpdk/x86_64-native-linuxapp-gcc/install/lib/x86_64-linux-gnu/:$LD_LIBRARY_PATH
+
+//sudo /etinfo/users/2021/mvanliefde/fastclick-gpu/bin/click --dpdk -c 0xffff -n 4 -a 98:00.0 -a b1:00.0 --file-prefix npf -- dpdk-bounce.click
 
 
 %script@joyeux sudo=true delay=5
@@ -38,10 +51,9 @@ define ($print false)
 
 DPDKInfo(524287)
 
-FromDPDKDevice(0, NDESC 32768, MAXTHREADS ${THREADS})
+FromDPDKDevice(0, NDESC ${NDESC}, MAXTHREADS ${THREADS})
         -> EtherMirror()
-        /* -> Print(ACTIVE $print) */
-        -> ToDPDKDevice(0, NDESC 2048, MAXTHREADS ${THREADS})
+        -> ToDPDKDevice(0, NDESC ${NDESC}, MAXTHREADS ${THREADS})
 
 
 %file cfg.lua
@@ -106,7 +118,7 @@ pktgen.range.src_port("0", "min", 2048)
 pktgen.range.src_port("0", "max", 2048)
 
 -- Set the rate to 20%
-pktgen.set("all", "rate", ${RATE})
+-- pktgen.set("all", "rate", ${RATE})
 -- pktgen.set("all", "count", 30000000)
 
 -- Settings latency stuff
@@ -130,9 +142,9 @@ avg_cycles = pkt_stats[0].latency.avg_cycles
 num_rx = statRx.ipackets
 num_tx = statRx.opackets
 mbits_rx = pktgen.portStats("all", "rate")[0].mbits_rx
-print("\n\n RESULT-RX-RATE " .. (mbits_rx / 15) / 100 .. "\n\n")
-print("\n\n RESULT-AVG-CYCLES " .. avg_cycles .. "\n\n")
--- print("\n\n RESULT-LOSE-RATE " .. 1-(num_rx / (num_rx)) .. "\n\n")
+print("\n\n RESULT-RX-NB-PKT " .. num_rx / 15 .. "\n\n")
+print("\n\n RESULT-RX-RATE " .. num_rx / 15 * 8 * ${SIZE} / 1000000000 .. "\n\n")
+print("\n\n RESULT-LAT " .. avg_cycles / 3000000000 .. "\n\n")
 print("\n\n RESULT-LOSE-RATE " .. 1-(num_rx / (num_tx)) .. "\n\n")
 
 pktgen.quit()

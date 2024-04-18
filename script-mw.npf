@@ -1,10 +1,10 @@
 %info
 
 %variables
-RATE=100
+RATE={100}
 SIZE={64, 128, 256, 512, 1024}
-NDESC={256}
-THREADS={1, 2, 4, 6}
+BATCH={32, 64, 128, 256, 512, 992}
+THREADS={1, 2, 4, 6, 8}
 
 %config
 graph_force_diagonal_labels=true
@@ -18,16 +18,42 @@ n_runs=5
 
 
 
-%script@smartnic sudo=true
+
+%script sudo=true
 killall -9 click
 sleep 3
-sudo /home/ubuntu/fastclick_dpu/bin/click --dpdk -c 0xff -n 4 --file-prefix npf -- -e "FromDPDKDevice(0, NDESC ${NDESC}, MAXTHREADS ${THREADS}) -> EtherMirror() -> ToDPDKDevice(0, NDESC ${NDESC}, MAXTHREADS ${THREADS})"
+
+export LD_LIBRARY_PATH=/etinfo/users/2021/mvanliefde/workspace_joyeux/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH
+sudo /etinfo/users/2021/mvanliefde/fastclick-gpu/bin/click --dpdk -c 0xffff -n 4 -a 98:00.0 -a b1:00.0 --file-prefix npf -- gpu-bounce.click
 
 
-%script@joyeux sudo=true delay=6
+%script@joyeux sudo=true delay=5
 
 export LD_LIBRARY_PATH=/etinfo/users/2021/rvanhauwaert/dpdk-23.03/dpdk/install/lib/x86_64-linux-gnu/:$LD_LIBRARY_PATH
-sudo LD_LIBRARY_PATH=$LD_LIBRARY_PATH /etinfo/users/2021/rvanhauwaert/dpdk-23.03/Pktgen-DPDK/usr/local/bin/pktgen -l 0-7 -n 4 -a 0000:01:00.1 --file-prefix npf -- -m [1/2/3:4/5/6].0 -P -f cfg.lua
+sudo LD_LIBRARY_PATH=$LD_LIBRARY_PATH /etinfo/users/2021/rvanhauwaert/dpdk-23.03/Pktgen-DPDK/usr/local/bin/pktgen -l 0-7 -n 4 -a 0000:01:00.0 --file-prefix npf -- -m [1/2/3:4/5/6].0 -P -f cfg.lua
+
+
+%file gpu-bounce.click
+define ($batch ${BATCH})
+define ($maxthread ${THREADS})
+
+info :: DPDKInfo(NB_SOCKET_MBUF 0, NB_SOCKET_MBUF 262143)
+
+Script(TYPE ACTIVE, read load, read info.pool_count, wait 1s, loop);
+
+StaticThreadSched(p 15)
+StaticThreadSched(gpu 15)
+
+FromDPDKDevice(0, NDESC 1024, BURST 32, MAXTHREADS $maxthread, VERBOSE 10) 
+    -> CPUPaint()
+    // -> Print(INP, MAXLENGTH 12, ACTIVE true) 
+    -> p :: Pipeliner(BURST 32, BLOCKING true)
+    -> gpu :: GPUEtherMirrorMW(p, VERBOSE false)
+    // -> Print(OUT, MAXLENGTH 12, ACTIVE true)
+    -> ToDPDKDevice(0, NDESC 1024, MAXTHREADS $maxthread, VERBOSE 10)
+
+
+
 
 %file cfg.lua
 package.path = package.path .. ";/etinfo/users/2021/rvanhauwaert/yeah/Pktgen-DPDK/?.lua"

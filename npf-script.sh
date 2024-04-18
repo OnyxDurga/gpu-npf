@@ -1,14 +1,28 @@
-cd
-sudo rm -r npf-results/base/results
-./npf/npf-run.py --test npf-scripts/script-base.npf --cluster joyeux=joyeux --show-full --show-all
-mv results/ npf-results/base/
+#!/bin/sh
 
-sudo rm -r npf-results/gpu/results
-./npf/npf-run.py --test npf-scripts/script-gpu.npf --cluster joyeux=joyeux --show-full --show-all
-mv results/ npf-results/gpu/
+while getopts :r flag
+do
+    case "${flag}" in
+        r)
+            RETEST=" --force-retest"
+            ;;
+        \? )
+            echo "Usage: $(basename $0) [-r]"
+            exit 1
+            ;;
+    esac
+done
 
-sudo rm -r npf-results/dpu/results
-./npf/npf-run.py --test npf-scripts/script-dpu.npf --cluster smartnic=smartnic joyeux=joyeux --show-full --show-all
-mv results/ npf-results/dpu/
+../npf/npf-run.py --test script-cpu.npf --cluster joyeux=joyeux --show-full --show-all $RETEST
 
-killall -9 click
+../npf/npf-run.py --test script-gpu.npf --cluster joyeux=joyeux --show-full --show-all $RETEST
+
+# ../npf/npf-run.py --test script-dpu.npf --cluster smartnic=smartnic joyeux=joyeux --show-full --show-all $RETEST
+
+# ../npf/npf-run.py --test script-comp-cpu-gpu.npf --cluster joyeux=joyeux --show-full --show-all $RETEST
+
+# ../npf/npf-run.py --test script-mw.npf --cluster joyeux=joyeux --show-full --show-all $RETEST
+
+# ../npf/npf-run.py --test script-iplookup-cpu.npf --cluster joyeux=joyeux --show-full --show-all $RETEST
+
+sudo killall -9 click
