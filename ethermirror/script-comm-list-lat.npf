@@ -1,13 +1,10 @@
 %info
 
 %variables
-RATE=100
-SIZE={64, 128, 256, 512, 1024}
-THREADS={1, 2, 4, 6, 8}
-NDESC={2048}
-
-//SIZE={1024}
-//THREADS={4}
+RATE={1}
+SIZE={256}
+BATCH={32, 64, 128, 256, 512, 1024}
+THREADS={1, 2, 3, 4}
 
 %config
 graph_force_diagonal_labels=true
@@ -17,19 +14,17 @@ var_lim={AVG-CYCLES:0-}
 timeout=60
 n_runs=5
 
-//n_runs=1
+
+
+
 
 
 %script sudo=true
 killall -9 click
 sleep 3
-export LD_LIBRARY_PATH=/etinfo/users/2021/rvanhauwaert/dpdk-23.03/dpdk/install/lib/x86_64-linux-gnu/:$LD_LIBRARY_PATH
-sudo /etinfo/users/2021/rvanhauwaert/fastclick/bin/click --dpdk -c 0xffff -n 4 -a 98:00.0 --file-prefix npf -- dpdk-bounce.click
 
-//export PKG_CONFIG_PATH=/etinfo/users/2021/mvanliefde/dpdk/x86_64-native-linuxapp-gcc/install/lib/x86_64-linux-gnu/pkgconfig:$PKG_CONFIG_PATH
-//export LD_LIBRARY_PATH=/etinfo/users/2021/mvanliefde/dpdk/x86_64-native-linuxapp-gcc/install/lib/x86_64-linux-gnu/:$LD_LIBRARY_PATH
-
-//sudo /etinfo/users/2021/mvanliefde/fastclick-gpu/bin/click --dpdk -c 0xffff -n 4 -a 98:00.0 -a b1:00.0 --file-prefix npf -- dpdk-bounce.click
+export LD_LIBRARY_PATH=/etinfo/users/2021/mvanliefde/workspace_joyeux/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH
+sudo /etinfo/users/2021/mvanliefde/fastclick-gpu/bin/click --dpdk -c 0xfffff -n 4 -a 98:00.0 -a b1:00.0 --file-prefix npf -- gpu-bounce.click
 
 
 %script@joyeux sudo=true delay=5
@@ -38,22 +33,44 @@ export LD_LIBRARY_PATH=/etinfo/users/2021/rvanhauwaert/dpdk-23.03/dpdk/install/l
 sudo LD_LIBRARY_PATH=$LD_LIBRARY_PATH /etinfo/users/2021/rvanhauwaert/dpdk-23.03/Pktgen-DPDK/usr/local/bin/pktgen -l 0-7 -n 4 -a 0000:01:00.0 --file-prefix npf -- -m [1/2/3:4/5/6].0 -P -f cfg.lua
 
 
-%file dpdk-bounce.click
+
+
+
+%file gpu-bounce.click
 /**
- * This simple configuration bounces packets from a single interface to itself.
- * MAC addresses are inverted
+ * This simple configuration bounces packets from a single interface to itself
+ * MAC addresses are inverted using GPU
  *
- * A minimal launch line would be :
- * sudo bin/click --dpdk -- conf/dpdk/dpdk-bounce.click
+ * A minimal launch line would be:
+ * sudo bin/click --dpdk -- conf/cuda/gpu-bounce.click
  */
 
-define ($print false)
+ // Size of the mempool to allocate
+ define ($nb_mbuf 65536)
+ 
+ // Number of descriptors per ring
+ define ($ndesc 2048)
+ 
+ // A batch must contain at most 1024 packets
+ define ($batch ${BATCH})     // VAR 32 à 1024 par puissances de 2
+ define ($burst 32)
+ define ($minbatch $((${BATCH}-32))) // has to be $batch - $burst
+ 
+ define ($maxthreads ${THREADS})  // VAR 1 2 3 4 
+ 
+ define ($capacity 4096) // VAR 1024 2048 4086 8192, avec autres paramètres fixés: threads 3, batch 128
+ 
+ info :: DPDKInfo(NB_SOCKET_MBUF 0, NB_SOCKET_MBUF $(nb_mbuf))
+ 
+ FromDPDKDevice(0, NDESC $ndesc, MAXTHREADS $maxthreads, BURST $burst) 
+     -> MinBatch($minbatch, TIMER 1000) 
+     -> GPUEtherMirror(VERBOSE false, CAPACITY $capacity, MAX_BATCH $batch, THREAD_BLOCKS_PER_QUEUE 1) 
+     -> ToDPDKDevice(0, NDESC $ndesc, MAXTHREADS $maxthreads, BLOCKING false)
+ 
+ /* For debug purposes */
+ // Script(TYPE ACTIVE, read load, read info.pool_count, wait 1s, loop);
 
-DPDKInfo(524287)
 
-FromDPDKDevice(0, NDESC ${NDESC}, MAXTHREADS ${THREADS})
-        -> EtherMirror()
-        -> ToDPDKDevice(0, NDESC ${NDESC}, MAXTHREADS ${THREADS})
 
 
 %file cfg.lua
@@ -118,7 +135,7 @@ pktgen.range.src_port("0", "min", 2048)
 pktgen.range.src_port("0", "max", 2048)
 
 -- Set the rate to 20%
--- pktgen.set("all", "rate", ${RATE})
+pktgen.set("all", "rate", ${RATE})
 -- pktgen.set("all", "count", 30000000)
 
 -- Settings latency stuff
@@ -142,9 +159,7 @@ avg_cycles = pkt_stats[0].latency.avg_cycles
 num_rx = statRx.ipackets
 num_tx = statRx.opackets
 mbits_rx = pktgen.portStats("all", "rate")[0].mbits_rx
-print("\n\n RESULT-RX-NB-PKT " .. num_rx / 15 .. "\n\n")
-print("\n\n RESULT-RX-RATE " .. num_rx / 15 * 8 * ${SIZE} / 1000000000 .. "\n\n")
 print("\n\n RESULT-LAT " .. avg_cycles / 3000000000 .. "\n\n")
-print("\n\n RESULT-LOSE-RATE " .. 1-(num_rx / (num_tx)) .. "\n\n")
+print("\n\n RESULT-LOSE-RATE-LAT " .. 1-(num_rx / (num_tx)) .. "\n\n")
 
 pktgen.quit()

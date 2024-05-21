@@ -1,74 +1,74 @@
 %info
 
 %variables
-SIZE={64, 128, 256, 512, 1024}
-THREADS={1, 2, 4, 6, 8}
-BATCH={128}
-NDESC={2048}
+RATE={100}
+SIZE={256}
+BATCH={32, 64, 128, 256, 512, 1024}
+THREADS={1, 2, 3, 4}
 
 %config
 graph_force_diagonal_labels=true
 graph_filter_by={AVG-CYCLES:LOSE-RATE}
-//var_lim={LOSE-RATE:0-}
-//var_lim={AVG-CYCLES:0-}
+var_lim={LOSE-RATE:0-}
+var_lim={AVG-CYCLES:0-}
 timeout=60
 n_runs=5
+
+
+
+
 
 
 %script sudo=true
 killall -9 click
 sleep 3
 
-export LD_LIBRARY_PATH=/etinfo/users/2021/rvanhauwaert/dpdk-23.03/dpdk/install/lib/x86_64-linux-gnu/:$LD_LIBRARY_PATH
-sudo /etinfo/users/2021/rvanhauwaert/fastclick/bin/click --dpdk -c 0xffff -n 4 -a 98:00.0 --file-prefix npf -- iplookup.click
-
+export LD_LIBRARY_PATH=/etinfo/users/2021/mvanliefde/workspace_joyeux/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH
+sudo GDRCOPY_PATH_L=/etinfo/users/2021/mvanliefde/gdrcopy/lib /etinfo/users/2021/mvanliefde/fastclick-gpu/bin/click --dpdk -c 0xfffff -n 4 -a 01:00.0 -a 02:00.0 --file-prefix npf -- gpu-bounce.click
 
 
 %script@joyeux sudo=true delay=5
 
 export LD_LIBRARY_PATH=/etinfo/users/2021/rvanhauwaert/dpdk-23.03/dpdk/install/lib/x86_64-linux-gnu/:$LD_LIBRARY_PATH
-sudo LD_LIBRARY_PATH=$LD_LIBRARY_PATH /etinfo/users/2021/rvanhauwaert/dpdk-23.03/Pktgen-DPDK/usr/local/bin/pktgen -l 0-7 -n 4 -a 0000:01:00.0 --file-prefix npf -- -m [1/2/3:4/5/6].0 -P -f cfg.lua
+sudo LD_LIBRARY_PATH=$LD_LIBRARY_PATH /etinfo/users/2021/rvanhauwaert/dpdk-23.03/Pktgen-DPDK/usr/local/bin/pktgen -l 0-7 -n 4 -a 0000:01:00.1 --file-prefix npf -- -m [1/2/3:4/5/6].0 -P -f cfg.lua
 
 
-%file iplookup.click
-define ($ndesc 2048)
-define ($threads ${THREADS})
 
-FromDPDKDevice(0, NDESC $ndesc, MAXTHREADS $threads)
-        -> Strip(14)
-        -> GetIPAddress(16)
-        -> r :: RadixIPLookup()
-		-> ToDPDKDevice(0, NDESC $ndesc, MAXTHREADS $threads);
 
-s :: Script(
-		write r.add 0.0.0.0/0  195.66.227.148 0,
-		write r.add 7.0.0.0/8  195.66.224.175 0,
-		write r.add 11.0.0.0/8  195.66.224.175 0,
-		write r.add 12.0.0.0/8  195.66.224.175 0,
-		write r.add 17.0.0.0/8  195.66.226.147 0,
-		write r.add 21.0.0.0/8  195.66.224.175 0,
-		write r.add 22.0.0.0/8  195.66.224.175 0,
-		write r.add 26.0.0.0/8  195.66.224.175 0,
-		write r.add 28.0.0.0/8  195.66.224.175 0,
-		write r.add 29.0.0.0/8  195.66.224.175 0,
-		write r.add 30.0.0.0/8  195.66.224.175 0,
-		write r.add 33.0.0.0/8  195.66.224.175 0,
-		write r.add 38.0.0.0/8  195.66.224.175 0,
-		write r.add 53.0.0.0/8  195.66.224.175 0,
-		write r.add 55.0.0.0/8  195.66.224.175 0,
-		write r.add 73.0.0.0/8  195.66.224.175 0,
-		write r.add 214.0.0.0/8  195.66.224.175 0,
-		write r.add 4.0.0.0/9  195.66.224.175 0,
-		write r.add 8.0.0.0/9  195.66.224.175 0,
-		write r.add 12.0.0.0/9  195.66.224.175 0,
-		write r.add 12.128.0.0/9  195.66.224.175 0,
-		write r.add 17.0.0.0/9  195.66.226.147 0,
-		write r.add 17.128.0.0/9  195.66.226.147 0,
-		write r.add 32.0.0.0/9  195.66.224.175 0,
-		write r.add 44.0.0.0/9  195.66.224.175 0,
-		write r.add 50.128.0.0/9  195.66.224.175 0,
-		write r.add 97.128.0.0/9  195.66.224.175 0,
-)
+
+%file gpu-bounce.click
+/**
+ * This simple configuration bounces packets from a single interface to itself
+ * MAC addresses are inverted using GPU
+ *
+ * A minimal launch line would be:
+ * sudo bin/click --dpdk -- conf/cuda/gpu-bounce.click
+ */
+
+ // Size of the mempool to allocate
+ define ($nb_mbuf 65536)
+ 
+ // Number of descriptors per ring
+ define ($ndesc 2048)
+ 
+ // A batch must contain at most 1024 packets
+ define ($batch ${BATCH})     // VAR 32 à 1024 par puissances de 2
+ define ($burst 32)
+ define ($minbatch $((${BATCH}-32))) // has to be $batch - $burst
+ 
+ define ($maxthreads ${THREADS})  // VAR 1 2 3 4 
+ 
+ define ($capacity 4096) // VAR 1024 2048 4086 8192, avec autres paramètres fixés: threads 3, batch 128
+ 
+ FromDPDKDevice(0, NDESC $ndesc, MAXTHREADS $maxthreads, BURST $burst) 
+     -> MinBatch($minbatch, TIMER 1000) 
+     -> GPUEtherMirrorCommList(VERBOSE false, CAPACITY $capacity, MAX_BATCH $batch, LISTS_PER_CORE 2)
+     -> ToDPDKDevice(0, NDESC $ndesc, MAXTHREADS $maxthreads, BLOCKING false)
+ 
+ /* For debug purposes */
+ // Script(TYPE ACTIVE, read load, read info.pool_count, wait 1s, loop);
+
+
 
 
 %file cfg.lua
@@ -102,17 +102,17 @@ pktgen.range.src_mac("all", "start", srcmac)
 
 pktgen.set_range("all", "on")
 
-pktgen.range.src_ip("all", "start", "1.1.1.1")
-pktgen.range.src_ip("all", "min", "1.1.1.1")
-pktgen.range.src_ip("all", "inc", "0.0.0.1")
-pktgen.range.src_ip("all", "max", "255.255.255.255")
+pktgen.range.src_ip("all", "start", "1.1.1.2")
+pktgen.range.src_ip("all", "min", "1.1.1.2")
+pktgen.range.src_ip("all", "inc", "0.0.0.0")
+pktgen.range.src_ip("all", "max", "1.1.1.2")
 
 -- For some reason, the simple start statement does not work
 -- I had to set min, max to the same value and increment to 0
 pktgen.range.dst_ip("all", "start", "1.1.1.1")
 pktgen.range.dst_ip("all", "min", "1.1.1.1")
-pktgen.range.dst_ip("all", "inc", "0.0.0.1")
-pktgen.range.dst_ip("all", "max", "255.255.255.255")
+pktgen.range.dst_ip("all", "inc", "0.0.0.0")
+pktgen.range.dst_ip("all", "max", "1.1.1.1")
 
 pktgen.range.ip_proto("all", "tcp")
 
@@ -133,7 +133,7 @@ pktgen.range.src_port("0", "min", 2048)
 pktgen.range.src_port("0", "max", 2048)
 
 -- Set the rate to 20%
--- pktgen.set("all", "rate", ${RATE})
+pktgen.set("all", "rate", ${RATE})
 -- pktgen.set("all", "count", 30000000)
 
 -- Settings latency stuff
@@ -159,7 +159,6 @@ num_tx = statRx.opackets
 mbits_rx = pktgen.portStats("all", "rate")[0].mbits_rx
 print("\n\n RESULT-RX-NB-PKT " .. num_rx / 15 .. "\n\n")
 print("\n\n RESULT-RX-RATE " .. num_rx / 15 * 8 * ${SIZE} / 1000000000 .. "\n\n")
-print("\n\n RESULT-LAT " .. avg_cycles / 3000000000 .. "\n\n")
 print("\n\n RESULT-LOSE-RATE " .. 1-(num_rx / (num_tx)) .. "\n\n")
 
 pktgen.quit()
