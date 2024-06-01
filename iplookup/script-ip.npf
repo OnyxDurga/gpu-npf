@@ -1,69 +1,56 @@
 %info
 
 %variables
-SIZE={256}
+RATE=100
+
+SIZE=256
 THREADS={1, 2, 4, 6, 8}
-BATCH={128}
-NDESC={2048}
+
+BATCH=128
+NDESC=2048
 
 %config
 graph_force_diagonal_labels=true
 graph_filter_by={AVG-CYCLES:LOSE-RATE}
-//var_lim={LOSE-RATE:0-}
-//var_lim={AVG-CYCLES:0-}
+var_names={RESULT-RX-RATE:Rate (Gb/s),RESULT-RX-NB-PKT:nb pkt (#/s),RESULT-LOSE-RATE:loss rate (%), THREADS:Threads}
+graph_color={0}
+var_lim={RESULT-RX-RATE:0-,RESULT-RX-NB-PKT:0-,RESULT-LOSE-RATE:0-1.1}
 timeout=60
-n_runs=3
+n_runs=5
 
 
 %script sudo=true
 killall -9 click
 sleep 3
 
-export LD_LIBRARY_PATH=/etinfo/users/2021/mvanliefde/workspace_joyeux/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH
-sudo /etinfo/users/2021/rvanhauwaert/fastclick-gpu/bin/click --dpdk -c 0xffff -n 4 -a 98:00.0 -a b1:00.0 --file-prefix npf -- iplookup.click
+export LD_LIBRARY_PATH=/etinfo/users/2021/mvanliefde/dpdk/install/lib/x86_64-linux-gnu/
+sudo /etinfo/users/2021/mvanliefde/fastclick-gpu/bin/click --dpdk -c 0xffff -n 4 -a 01:00.0 -a 02:00.0 --file-prefix npf -- iplookup.click
 
 
 
 %script@joyeux sudo=true delay=5
 
 export LD_LIBRARY_PATH=/etinfo/users/2021/rvanhauwaert/dpdk-23.03/dpdk/install/lib/x86_64-linux-gnu/:$LD_LIBRARY_PATH
-sudo LD_LIBRARY_PATH=$LD_LIBRARY_PATH /etinfo/users/2021/rvanhauwaert/dpdk-23.03/Pktgen-DPDK/usr/local/bin/pktgen -l 0-7 -n 4 -a 0000:01:00.0 --file-prefix npf -- -m [1/2/3:4/5/6].0 -P -f cfg.lua
+sudo LD_LIBRARY_PATH=$LD_LIBRARY_PATH /etinfo/users/2021/rvanhauwaert/dpdk-23.03/Pktgen-DPDK/usr/local/bin/pktgen -l 0-7 -n 4 -a 0000:01:00.1 --file-prefix npf -- -m [1/2/3:4/5/6].0 -P -f cfg.lua
 
 
 %file iplookup.click
-/**
- * This simple configuration bounces packets from a single interface to itself
- * MAC addresses are inverted using GPU
- *
- * A minimal launch line would be:
- * sudo bin/click --dpdk -- conf/cuda/gpu-bounce.click
- */
-
-// Size of the mempool to allocate
-define ($nb_mbuf 65535)
-
-// Number of descriptors per ring
 define ($ndesc 2048)
+define ($threads ${THREADS})
 
-// A batch must contain at most 1024 packets
-define ($batch 512)
-define ($burst 32)
-define ($minbatch 480) // has to be $batch - $burst
+FromDPDKDevice(0, NDESC $ndesc, MAXTHREADS $threads)
+        -> Strip(14)
+        -> GetIPAddress(16)
+        -> r :: LinearIPLookup()
+		-> Unstrip(14)
+		-> ToDPDKDevice(0, NDESC $ndesc, MAXTHREADS $threads);
 
-define ($maxthreads 8)
-
-info :: DPDKInfo(NB_SOCKET_MBUF 0, NB_SOCKET_MBUF $(nb_mbuf))
-
-FromDPDKDevice(0, NDESC $ndesc, MAXTHREADS $maxthreads, BURST $burst) 
-    -> MinBatch($minbatch, TIMER 10) 
-    -> GPUIPLookup(
-        0.0.0.0/0  195.66.227.148 0,
-        7.0.0.0/8  195.66.224.175 0,
-        12.128.0.0/9  195.66.224.175 0,
-        192.168.0.0/8 1.1.1.1 0,
-    ) 
-    -> ToDPDKDevice(0, NDESC $ndesc, MAXTHREADS $maxthreads, BLOCKING true);
-
+s :: Script(
+		write r.add 11.0.0.0/8  195.66.224.175 0,
+		write r.add 12.0.0.0/8  195.66.224.175 0,
+		write r.add 5.114.0.0/18  195.66.224.131 0,
+		write r.add 0.0.0.0/0  195.66.224.131 0,
+)
 
 
 %file cfg.lua
@@ -85,36 +72,39 @@ local third_byte = math.random(1, 255)
 local fourth_byte = math.random(1, 255)
 local srcip = 4321
 -- Writting packet length in dstmac field (60 bytes packets)
-local dstmac = "00:00:3C:00:00:00"
-local srcmac = "04:3f:72:dc:4a:65"
---  3c:ec:ef:97:ee:90 joyeux
+local dstmac = "30:00:3C:00:00:01"
+local srcmac = "40:00:2C:00:00:00"
+
+TIME = 15
+RATE = ${RATE}
+PKT_SIZE = ${SIZE}
 
 -- =================== Generic Info ===================
 pktgen.ports_per_page(1)
 
-pktgen.range.dst_mac("all", "start", dstmac)
-pktgen.range.src_mac("all", "start", srcmac)
+pktgen.range.dst_mac("0", "start", dstmac)
+pktgen.range.src_mac("0", "start", srcmac)
 
-pktgen.set_range("all", "on")
+pktgen.set_range("0", "on")
 
-pktgen.range.src_ip("all", "start", "1.1.1.1")
-pktgen.range.src_ip("all", "min", "1.1.1.1")
-pktgen.range.src_ip("all", "inc", "0.0.0.1")
-pktgen.range.src_ip("all", "max", "255.255.255.255")
+pktgen.range.src_ip("0", "start", "1.2.3.4")
+pktgen.range.src_ip("0", "min", "0.0.0.0")
+pktgen.range.src_ip("0", "inc", "0.0.0.1")
+pktgen.range.src_ip("0", "max", "255.255.255.255")
 
 -- For some reason, the simple start statement does not work
 -- I had to set min, max to the same value and increment to 0
-pktgen.range.dst_ip("all", "start", "1.1.1.1")
-pktgen.range.dst_ip("all", "min", "1.1.1.1")
-pktgen.range.dst_ip("all", "inc", "0.0.0.1")
-pktgen.range.dst_ip("all", "max", "255.255.255.255")
+pktgen.range.dst_ip("0", "start", "5.6.7.8")
+pktgen.range.dst_ip("0", "min", "0.0.0.0")
+pktgen.range.dst_ip("0", "inc", "0.0.0.1")
+pktgen.range.dst_ip("0", "max", "255.255.255.255")
 
-pktgen.range.ip_proto("all", "tcp")
+pktgen.range.ip_proto("0", "tcp")
 
-pktgen.range.pkt_size("all", "start", ${SIZE})
-pktgen.range.pkt_size("all", "inc", 0)
-pktgen.range.pkt_size("all", "min", ${SIZE})
-pktgen.range.pkt_size("all", "max", ${SIZE})
+pktgen.range.pkt_size("0", "start", PKT_SIZE)
+pktgen.range.pkt_size("0", "inc", 0)
+pktgen.range.pkt_size("0", "min", PKT_SIZE)
+pktgen.range.pkt_size("0", "max", PKT_SIZE)
 
 pktgen.range.dst_port("0", "start", 1024)
 pktgen.range.dst_port("0", "inc", 1)
@@ -127,33 +117,21 @@ pktgen.range.src_port("0", "inc", 1)
 pktgen.range.src_port("0", "min", 2048)
 pktgen.range.src_port("0", "max", 2048)
 
--- Set the rate to 20%
--- pktgen.set("all", "rate", ${RATE})
--- pktgen.set("all", "count", 30000000)
-
--- Settings latency stuff
-pktgen.latency(0, "enable");
-pktgen.latency(0, "rate", 1000);
-pktgen.latency(0, "entropy", 12);
-pktgen.latency(0, "enable");
-pktgen.latency(0, "rate", 10000);
-pktgen.latency(0, "entropy", 8);
+-- Set the rate/amount of pkts
+pktgen.set("0", "rate", RATE)
+-- pktgen.set("0", "count", 5)
 
 pktgen.delay(100)
-pktgen.start("all")
+pktgen.start("0")
 
-pktgen.delay(15000)
+pktgen.delay(TIME * 1000)
 
 pktgen.stop("0")
 
 statRx = pktgen.portStats(0, "port")[0]
-pkt_stats = pktgen.pktStats(0)
-avg_cycles = pkt_stats[0].latency.avg_cycles
 num_rx = statRx.ipackets
 num_tx = statRx.opackets
-mbits_rx = pktgen.portStats("all", "rate")[0].mbits_rx
-print("\n\n RESULT-RX-NB-PKT " .. num_rx / 15 .. "\n\n")
-print("\n\n RESULT-RX-RATE " .. num_rx / 15 * 8 * ${SIZE} / 1000000000 .. "\n\n")
+print("\n\n RESULT-RX-RATE " .. num_rx / TIME * 8 * PKT_SIZE / 1000000000 .. "\n\n")
 print("\n\n RESULT-LOSE-RATE " .. 1-(num_rx / (num_tx)) .. "\n\n")
 
 pktgen.quit()

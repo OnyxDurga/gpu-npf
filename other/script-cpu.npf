@@ -2,12 +2,9 @@
 
 %variables
 RATE=100
-SIZE={64, 128, 256, 512, 1024}
+SIZE={1024}
 THREADS={1, 2, 4, 6, 8}
-NDESC={2048}
-
-//SIZE={1024}
-//THREADS={4}
+NDESC={256, 512, 1024, 2048}
 
 %config
 graph_force_diagonal_labels=true
@@ -22,11 +19,6 @@ killall -9 click
 sleep 3
 export LD_LIBRARY_PATH=/etinfo/users/2021/rvanhauwaert/dpdk-23.03/dpdk/install/lib/x86_64-linux-gnu/:$LD_LIBRARY_PATH
 sudo /etinfo/users/2021/mvanliefde/fastclick-gpu/bin/click --dpdk -c 0xffff -n 4 -a 01:00.0 -a 02:00.0 --file-prefix npf -- dpdk-bounce.click
-
-//export PKG_CONFIG_PATH=/etinfo/users/2021/mvanliefde/dpdk/x86_64-native-linuxapp-gcc/install/lib/x86_64-linux-gnu/pkgconfig:$PKG_CONFIG_PATH
-//export LD_LIBRARY_PATH=/etinfo/users/2021/mvanliefde/dpdk/x86_64-native-linuxapp-gcc/install/lib/x86_64-linux-gnu/:$LD_LIBRARY_PATH
-
-//sudo /etinfo/users/2021/mvanliefde/fastclick-gpu/bin/click --dpdk -c 0xffff -n 4 -a 98:00.0 -a b1:00.0 --file-prefix npf -- dpdk-bounce.click
 
 
 %script@joyeux sudo=true delay=5

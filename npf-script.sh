@@ -13,11 +13,13 @@ do
     esac
 done
 
+# iplookup
+
 # ../npf/npf-run.py --test iplookup/script-iplookup-cpu.npf --cluster joyeux=sam --show-full --show-all $RETEST
 
 # ../npf/npf-run.py --test script-iplookup-cpu-lat.npf --cluster joyeux=joyeux --show-full --show-all $RETEST
 
-# ../npf/npf-run.py --test script-iplookup-gpu.npf --cluster joyeux=joyeux --show-full --show-all $RETEST
+# ../npf/npf-run.py --test iplookup/script-iplookup-gpu.npf --cluster joyeux=sam --show-full --show-all $RETEST
 
 # ../npf/npf-run.py --test script-iplookup-gpu-lat.npf --cluster joyeux=joyeux --show-full --show-all $RETEST
 
@@ -32,19 +34,21 @@ done
 
 ### ethermirror
 
-../npf/npf-run.py --test ethermirror/script-master-workers.npf --cluster joyeux=sam --show-full --show-all $RETEST
+# ../npf/npf-run.py --test ethermirror/script-cpu.npf --cluster joyeux=sam --show-full --show-all $RETEST --cluster-autosave
 
-../npf/npf-run.py --test ethermirror/script-zero-copy.npf --cluster joyeux=sam --show-full --show-all $RETEST
+# ../npf/npf-run.py --test ethermirror/script-master-workers.npf --cluster joyeux=sam --show-full --show-all $RETEST
 
-../npf/npf-run.py --test ethermirror/script-lpq-zero-copy.npf --cluster joyeux=sam --show-full --show-all $RETEST
+# ../npf/npf-run.py --test ethermirror/script-zero-copy.npf --cluster joyeux=sam --show-full --show-all $RETEST
 
-../npf/npf-run.py --test ethermirror/script-with-copy.npf --cluster joyeux=sam --show-full --show-all $RETEST
+# ../npf/npf-run.py --test ethermirror/script-qpc-zero-copy.npf --cluster joyeux=sam --show-full --show-all $RETEST
 
-../npf/npf-run.py --test ethermirror/script-comm-list.npf --cluster joyeux=sam --show-full --show-all $RETEST
+# ../npf/npf-run.py --test ethermirror/script-with-copy.npf --cluster joyeux=sam --show-full --show-all $RETEST
 
-../npf/npf-run.py --test ethermirror/script-lpq-comm-list.npf --cluster joyeux=sam --show-full --show-all $RETEST
+# ../npf/npf-run.py --test ethermirror/script-comm-list.npf --cluster joyeux=sam --show-full --show-all $RETEST
 
-../npf/npf-run.py --test ethermirror/script-comm-list-cap.npf --cluster joyeux=sam --show-full --show-all $RETEST
+# ../npf/npf-run.py --test ethermirror/script-lpc-comm-list.npf --cluster joyeux=sam --show-full --show-all $RETEST
+
+# ../npf/npf-run.py --test ethermirror/script-comm-list-cap.npf --cluster joyeux=sam --show-full --show-all $RETEST
 
 ### lat
 
