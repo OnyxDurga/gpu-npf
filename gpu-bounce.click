@@ -1,18 +1,25 @@
+
+// Size of the mempool to allocate
+define ($nb_mbuf 65536)
+
+// Number of descriptors per ring
 define ($ndesc 2048)
-define ($threads 2)
 
-FromDPDKDevice(0, NDESC $ndesc, MAXTHREADS $threads)
-        -> Strip(14)
-        -> GetIPAddress(16)
-        -> r :: LinearIPLookup()
-		-> Unstrip(14)
-		-> ToDPDKDevice(0, NDESC $ndesc, MAXTHREADS $threads);
+define ($batch 64)    // VAR 32 64 128 256 512 1024 2048 4096 8192
+define ($burst 32)
+define ($minbatch 32) // has to be $batch - $burst
 
-s :: Script(
-		write r.add 11.0.0.0/8  195.66.224.175 0,
-		write r.add 12.0.0.0/8  195.66.224.175 0,
-		write r.add 5.113.128.0/18  195.66.224.131 0,
-		write r.add 5.113.192.0/18  195.66.224.131 0,
-		write r.add 5.114.0.0/18  195.66.224.131 0,
-		write r.add 0.0.0.0/0  195.66.224.131 0,
-)
+define ($maxthreads 3)  // VAR 1 2 3 4
+
+define ($zerocopy false) // VAR true or false
+
+from :: FromDPDKDevice(0, NDESC $ndesc, MAXTHREADS $maxthreads, BURST $burst) 
+    -> MinBatch($minbatch, TIMER 1000) 
+    -> GPUEtherMirrorCoalescent(FROM 0, TO 12, VERBOSE false, CAPACITY 128, MAX_BATCH $batch, ZEROCOPY $zerocopy, BLOCKING false, QUEUES_PER_CORE 16)
+    -> ToDPDKDevice(0, NDESC $ndesc, MAXTHREADS $maxthreads, BLOCKING true)
+
+/* For debug purposes */
+// Script(TYPE ACTIVE, read from.hw_dropped, wait 1s, loop);
+
+
+

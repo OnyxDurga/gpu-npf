@@ -34,21 +34,21 @@ done
 
 ### ethermirror
 
-# ../npf/npf-run.py --test ethermirror/script-cpu.npf --cluster joyeux=sam --show-full --show-all $RETEST --cluster-autosave
+../npf/npf-run.py --test ethermirror/script-cpu.npf --cluster joyeux=sam --show-full --show-all $RETEST
 
-# ../npf/npf-run.py --test ethermirror/script-master-workers.npf --cluster joyeux=sam --show-full --show-all $RETEST
+../npf/npf-run.py --test ethermirror/script-master-workers.npf --cluster joyeux=sam --show-full --show-all $RETEST
 
-# ../npf/npf-run.py --test ethermirror/script-zero-copy.npf --cluster joyeux=sam --show-full --show-all $RETEST
+../npf/npf-run.py --test ethermirror/script-zero-copy.npf --cluster joyeux=sam --show-full --show-all $RETEST
 
-# ../npf/npf-run.py --test ethermirror/script-qpc-zero-copy.npf --cluster joyeux=sam --show-full --show-all $RETEST
+../npf/npf-run.py --test ethermirror/script-qpc-zero-copy.npf --cluster joyeux=sam --show-full --show-all $RETEST
 
-# ../npf/npf-run.py --test ethermirror/script-with-copy.npf --cluster joyeux=sam --show-full --show-all $RETEST
+../npf/npf-run.py --test ethermirror/script-with-copy.npf --cluster joyeux=sam --show-full --show-all $RETEST
 
-# ../npf/npf-run.py --test ethermirror/script-comm-list.npf --cluster joyeux=sam --show-full --show-all $RETEST
+../npf/npf-run.py --test ethermirror/script-comm-list.npf --cluster joyeux=sam --show-full --show-all $RETEST
 
-# ../npf/npf-run.py --test ethermirror/script-lpc-comm-list.npf --cluster joyeux=sam --show-full --show-all $RETEST
+../npf/npf-run.py --test ethermirror/script-lpc-comm-list.npf --cluster joyeux=sam --show-full --show-all $RETEST
 
-# ../npf/npf-run.py --test ethermirror/script-comm-list-cap.npf --cluster joyeux=sam --show-full --show-all $RETEST
+../npf/npf-run.py --test ethermirror/script-comm-list-cap.npf --cluster joyeux=sam --show-full --show-all $RETEST
 
 ### lat
 

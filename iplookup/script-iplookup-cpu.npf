@@ -24,7 +24,7 @@ killall -9 click
 sleep 3
 
 export LD_LIBRARY_PATH=/etinfo/users/2021/mvanliefde/dpdk/install/lib/x86_64-linux-gnu/
-sudo /etinfo/users/2021/mvanliefde/fastclick-gpu/bin/click --dpdk -c 0xffff -n 4 -a 01:00.0 -a 02:00.0 --file-prefix npf -- iplookup.click
+sudo /etinfo/users/2021/rvanhauwaert/fastclick-gpu/bin/click --dpdk -c 0xfe -n 4 -a 01:00.0 -a 02:00.0 --file-prefix npf -- iplookup.click
 
 
 
@@ -6031,7 +6031,7 @@ s :: Script(
 		write r.add 55.83.0.0/16  195.66.224.175 0,
 		write r.add 55.84.0.0/16  195.66.224.175 0,
 		write r.add 0.0.0.0/0  195.66.224.131 0,
-                print "hello",
+		print "hello",
 )
 
 

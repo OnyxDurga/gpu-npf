@@ -26,7 +26,7 @@ killall -9 click
 sleep 3
 
 export LD_LIBRARY_PATH=/etinfo/users/2021/mvanliefde/dpdk/install/lib/x86_64-linux-gnu/
-sudo /etinfo/users/2021/mvanliefde/fastclick-gpu/bin/click --dpdk -c 0xfffff -n 4 -a 01:00.0 -a 02:00.0 --file-prefix npf -- gpu-bounce.click
+sudo /etinfo/users/2021/rvanhauwaert/fastclick-gpu/bin/click --dpdk -c 0xfe -n 4 -a 01:00.0 -a 02:00.0 --file-prefix npf -- gpu-bounce.click
 
 
 %script@joyeux sudo=true delay=7
