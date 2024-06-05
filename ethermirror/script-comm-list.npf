@@ -3,10 +3,11 @@
 %variables
 RATE=100
 
-SIZE=256
+SIZE=64
 THREADS={1, 2, 3, 4}
 
 BATCH={32, 64, 128, 256, 512, 1024}
+MEMPOOL_GPU={true, false}
 
 %config
 graph_force_diagonal_labels=true
@@ -60,6 +61,8 @@ sudo LD_LIBRARY_PATH=$LD_LIBRARY_PATH /etinfo/users/2021/rvanhauwaert/dpdk-23.03
  define ($maxthreads ${THREADS})  // VAR 1 2 3 4 
  
  define ($capacity 4096) // VAR 1024 2048 4086 8192, avec autres paramètres fixés: threads 3, batch 128
+
+ info :: DPDKInfo(NB_MBUF $nb_mbuf, MEMPOOL_GPU ${MEMPOOL_GPU})
  
  FromDPDKDevice(0, NDESC $ndesc, MAXTHREADS $maxthreads, BURST $burst) 
      -> MinBatch($minbatch, TIMER 1000) 

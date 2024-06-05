@@ -3,7 +3,7 @@
 %variables
 RATE=100
 
-SIZE=256
+SIZE=64
 THREADS={1, 2, 4, 6, 8}
 NDESC={256, 512, 1024, 2048}
 

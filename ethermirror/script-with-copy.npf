@@ -3,7 +3,7 @@
 %variables
 RATE=100
 
-SIZE=256
+SIZE=64
 THREADS={1, 2, 3, 4}
 
 COPY=false
@@ -62,7 +62,7 @@ define ($zerocopy ${COPY}) // VAR true or false
 
 from :: FromDPDKDevice(0, NDESC $ndesc, MAXTHREADS $maxthreads, BURST $burst) 
     -> MinBatch($minbatch, TIMER 1000) 
-    -> GPUEtherMirrorCoalescent(FROM 0, TO 12, VERBOSE false, CAPACITY 128, MAX_BATCH $batch, ZEROCOPY $zerocopy, BLOCKING false, QUEUES_PER_CORE 16)
+    -> GPUEtherMirrorCoalescent(FROM 0, TO 12, VERBOSE false, CAPACITY 128, MAX_BATCH $batch, ZEROCOPY $zerocopy, COPYBACK true, BLOCKING false, QUEUES_PER_CORE 16)
     -> ToDPDKDevice(0, NDESC $ndesc, MAXTHREADS $maxthreads, BLOCKING true)
 
 /* For debug purposes */

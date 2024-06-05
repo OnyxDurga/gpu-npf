@@ -3,7 +3,7 @@
 %variables
 RATE=100
 
-SIZE=256
+SIZE=64
 THREADS=1
 
 BATCH=1024
@@ -12,7 +12,7 @@ LISTS={1, 2, 4, 8, 16, 32}
 %config
 graph_force_diagonal_labels=true
 graph_filter_by={AVG-CYCLES:LOSE-RATE}
-var_lim={RESULT-RX-RATE:0-,RESULT-LOSE-RATE:0-}
+var_lim={RESULT-RX-RATE:0-60000,RESULT-LOSE-RATE:0-}
 timeout=60
 n_runs=5
 
