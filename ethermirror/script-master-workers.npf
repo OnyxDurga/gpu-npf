@@ -40,40 +40,30 @@ sudo LD_LIBRARY_PATH=$LD_LIBRARY_PATH /etinfo/users/2021/rvanhauwaert/dpdk-23.03
 %file gpu-bounce.click
 define ($maxthread ${THREADS})       // VAR 1 2 3 4
 
-// Script(TYPE ACTIVE, read p.count, read p0.count, read p1.count, read p2.count, read p3.count, wait 1s, loop);
-
-StaticThreadSched(p 17)
-StaticThreadSched(gpu 17)
-
-define ($batch ${BATCH})    // VAR 32 64 128 256 512 1024 2048 4096 8192
+define ($nb_mbuf 65535)
+define ($batch ${BATCH})
 define ($burst 32)
 
-fromdpdk :: FromDPDKDevice(0, NDESC ${NDESC}, BURST $burst, MAXTHREADS $maxthread, VERBOSE 10) 
-todpdk :: ToDPDKDevice(0, NDESC ${NDESC}, MAXTHREADS $maxthread, VERBOSE 10) 
+info :: DPDKInfo($nb_mbuf)
+
+define ($masterthread 6)
+StaticThreadSched(p $masterthread)
+
+fromdpdk :: FromDPDKDevice(0, NDESC 2048, BURST $burst, MAXTHREADS $maxthread) 
+todpdk :: ToDPDKDevice(0, NDESC 2048, MAXTHREADS $maxthread) 
 
 fromdpdk -> CPUPaint()
     -> p :: Pipeliner(BURST $burst, BLOCKING false, ALWAYS_UP false, PREFETCH true)
     -> ConstantBatch($batch, TIMER 1000)
-    -> gpu :: GPUEtherMirrorCoalescent(FROM 0, TO 12, MAX_BATCH $batch, VERBOSE false, CAPACITY 1024, ZEROCOPY true)
+    -> gpu :: GPUEtherMirrorCoalescent(ZEROCOPY false, COPYBACK true, MAX_BATCH $batch, CAPACITY 1024, QUEUES_PER_CORE 2)
     -> switch :: PaintSwitch()
 
-switch[1] -> p0 :: Pipeliner() -> [0]todpdk
-switch[3] -> p1 :: Pipeliner() -> [0]todpdk
-switch[5] -> p2 :: Pipeliner() -> [0]todpdk
-switch[7] -> p3 :: Pipeliner() -> [0]todpdk
-switch[0] -> Discard()
-switch[2] -> Discard()
-switch[4] -> Discard()
-switch[6] -> Discard()
-
-StaticThreadSched(p0 9)
-StaticThreadSched(p1 11)
-StaticThreadSched(p2 13)
-StaticThreadSched(p3 15)
-
-
-
-
+switch[0] -> p0 :: Pipeliner(THREAD 0) -> [0]todpdk
+switch[1] -> p1 :: Pipeliner(THREAD 1) -> [0]todpdk
+switch[2] -> p2 :: Pipeliner(THREAD 2) -> [0]todpdk
+switch[3] -> p3 :: Pipeliner(THREAD 3) -> [0]todpdk
+switch[4] -> p4 :: Pipeliner(THREAD 4) -> [0]todpdk
+switch[5] -> p5 :: Pipeliner(THREAD 5) -> [0]todpdk
 
 
 %file cfg.lua
