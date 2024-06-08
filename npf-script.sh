@@ -74,4 +74,12 @@ done
 
 # ../npf/npf-run.py --test script-iplookup-cpu.npf --cluster joyeux=joyeux --show-full --show-all $RETEST
 
+### CRC
+
+../npf/npf-run.py --test crc/script-crc-cpu.npf --cluster joyeux=sam --show-full --show-all $RETEST
+
+../npf/npf-run.py --test crc/script-crc-gpu-commlist.npf --cluster joyeux=sam --show-full --show-all $RETEST
+
+
+
 sudo killall -9 click
