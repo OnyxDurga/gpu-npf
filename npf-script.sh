@@ -76,9 +76,9 @@ done
 
 ### CRC
 
-../npf/npf-run.py --test crc/script-crc-cpu.npf --cluster joyeux=sam --show-full --show-all $RETEST
+../npf/npf-run.py --test crc/script-crc-cpu.npf --cluster joyeux=sam --show-full --show-all $RETEST --single-output crc-cpu.csv
 
-../npf/npf-run.py --test crc/script-crc-gpu-commlist.npf --cluster joyeux=sam --show-full --show-all $RETEST
+../npf/npf-run.py --test crc/script-crc-gpu-commlist.npf --cluster joyeux=sam --show-full --show-all $RETEST --single-output crc-gpu-commlist.csv
 
 
 
