@@ -17,12 +17,12 @@ n_runs=3
 killall -9 click
 sleep 1
 export LD_LIBRARY_PATH=/etinfo/users/2021/mvanliefde/dpdk/install/lib/x86_64-linux-gnu/
-sudo /etinfo/users/2021/mvanliefde/fastclick-gpu/bin/click --dpdk -c 0xfe -n 4 -a 01:00.0 -a 02:00.0 --file-prefix npf -- dpdk-crc.click
+sudo /etinfo/users/2021/rvanhauwaert/fastclick-gpu/bin/click --dpdk -c 0xfe -n 4 -a 01:00.0 -a 02:00.0 --file-prefix npf -- dpdk-crc.click
 
 
 %script@joyeux sudo=true delay=5
 
-export LD_LIBRARY_PATH=/etinfo/users/2021/rvanhauwaert/dpdk-23.03/dpdk/install/lib/x86_64-linux-gnu/:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=/etinfo/users/2021/rvanhauwaert/dpdk-23.03/dpdk/install-doca/lib/x86_64-linux-gnu/:$LD_LIBRARY_PATH
 sudo LD_LIBRARY_PATH=$LD_LIBRARY_PATH /etinfo/users/2021/rvanhauwaert/dpdk-23.03/Pktgen-DPDK/usr/local/bin/pktgen -l 0-7 -n 4 -a 0000:01:00.1 --file-prefix npf -- -m [1/2/3:4/5/6].0 -P -f cfg.lua
 
 
