@@ -1,5 +1,5 @@
 %info
-CRC on GPU using communication lists
+CRC on GPU using coalescent implementation
 
 
 %variables
@@ -9,9 +9,8 @@ SIZE={64, 128, 256, 512, 1024}
 NTHREADS={1, 2, 4, 8, 16}
 BATCH={64, 128, 256, 512, 1024}
 CAPACITY={256}
-LISTS_PER_CORE={1,2,4,8,16}
-MEMPOOL_GPU={true,false}
-PERSISTENT_KERNEL={true,false}
+QUEUES_PER_CORE={1,2,4,8,16}
+ZEROCOPY={true,false}
 
 
 %config
@@ -26,7 +25,7 @@ killall -9 click
 sleep 1
 export LD_LIBRARY_PATH=/etinfo/users/2021/mvanliefde/dpdk/install_sauron/lib/x86_64-linux-gnu/
 export GDRCOPY_PATH_L=/etinfo/users/2021/mvanliefde/gdrcopy-sauron/lib/
-sudo -E LD_LIBRARY_PATH=$LD_LIBRARY_PATH GDRCOPY_PATH_L=$GDRCOPY_PATH_L /etinfo/users/2021/mvanliefde/fastclick-gpu/bin/click --dpdk -l 16-31 -n 4 -a c1:00.0 -a a1:00.0 --file-prefix npf -- gpu-crc-commlist.click
+sudo -E LD_LIBRARY_PATH=$LD_LIBRARY_PATH GDRCOPY_PATH_L=$GDRCOPY_PATH_L /etinfo/users/2021/mvanliefde/fastclick-gpu/bin/click --dpdk -l 16-31 -n 4 -a c1:00.0 -a a1:00.0 --file-prefix npf -- gpu-crc-coalescent.click
 
 
 %script@joyeux sudo=true delay=5
@@ -35,7 +34,7 @@ export LD_LIBRARY_PATH=/etinfo/users/2021/rvanhauwaert/dpdk-23.03/dpdk/install-s
 sudo LD_LIBRARY_PATH=$LD_LIBRARY_PATH /etinfo/users/2021/rvanhauwaert/dpdk-23.03/Pktgen-DPDK/usr/local/bin/pktgen -l 0-7 -n 4 -a 0000:01:00.0 --file-prefix npf -- -m [1/2/3:4/5/6].0 -P -f cfg.lua
 
 
-%file gpu-crc-commlist.click
+%file gpu-crc-coalescent.click
 // Size of the mempool to allocate
 define ($nb_mbuf 65535)
 
@@ -50,22 +49,21 @@ define ($minbatch $((${BATCH}-32))) // has to be $batch - $burst
 // number of cores receiving and processing packets
 define ($maxthreads ${NTHREADS})
 
-// each thread has `lists_per_core` lists of size `capacity`
+// each thread has `queues_per_core` lists of size `capacity`
 define ($capacity ${CAPACITY})
-define ($lists_per_core ${LISTS_PER_CORE})
+define ($queues_per_core ${QUEUES_PER_CORE})
 
-// If true, NIC stores packets directly in GPU memory
-define ($gpudirect_rdma ${MEMPOOL_GPU})
+// If true, GPU directly accesses CPU memory
+define ($zerocopy ${ZEROCOPY})
 
-// Control Flow
-define ($persistent_kernel ${PERSISTENT_KERNEL})
+// Maximum size of a packet (defines how many bytes are copied per packet); better if cache aligned
+define ($max_pkt_size ${SIZE})
 
-
-info :: DPDKInfo($nb_mbuf, MEMPOOL_GPU $gpudirect_rdma)
+info :: DPDKInfo($nb_mbuf)
 
 FromDPDKDevice(0, NDESC $ndesc, MAXTHREADS $maxthreads, BURST $burst, NUMA false) 
     -> MinBatch($minbatch, TIMER 1000) 
-    -> GPUSetCRC32CommList(VERBOSE false, PERSISTENT_KERNEL $persistent_kernel, CAPACITY $capacity, MAX_BATCH $batch, LISTS_PER_CORE $lists_per_core) 
+    -> GPUSetCRC32Coalescent(MAX_PKT_SIZE $max_pkt_size, VERBOSE false, CAPACITY $capacity, MAX_BATCH $batch, QUEUES_PER_CORE $queues_per_core, ZEROCOPY $zerocopy) 
     -> ToDPDKDevice(0, NDESC $ndesc, MAXTHREADS $maxthreads, BLOCKING false)
 
 
