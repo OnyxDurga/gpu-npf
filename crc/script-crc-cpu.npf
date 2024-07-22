@@ -2,17 +2,17 @@
 CRC on CPU
 
 %variables
-RATE=100    // pktgen latency computation does not work with CRC
+RATE={100, 0.1}    // pktgen latency computation does not work with CRC
 
-SIZE={64, 128, 256, 512, 1024}
-NTHREADS={1, 2, 4, 8, 16}
+SIZE={64, 256, 1024}
+NTHREADS={1, 4, 16}
 
 
 %config
 graph_force_diagonal_labels=true
 var_lim={RESULT-RX-RATE:0,RESULT-LOSE-RATE:0}
 timeout=60
-n_runs=3
+n_runs=2
 
 
 %script sudo=true
@@ -44,6 +44,7 @@ info :: DPDKInfo($nb_mbuf)
 
 FromDPDKDevice(0, NDESC $ndesc, MAXTHREADS $maxthreads, NUMA false) 
     -> SetCRC32
+    -> EtherMirror()
     -> ToDPDKDevice(0, NDESC $ndesc, MAXTHREADS $maxthreads, BLOCKING false)
 
 

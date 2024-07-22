@@ -3,13 +3,13 @@ CRC on GPU using communication lists
 
 
 %variables
-RATE=100    // pktgen latency computation does not work with CRC
+RATE={100, 0.1}    // pktgen latency computation does not work with CRC
 
-SIZE={64, 128, 256, 512, 1024}
-NTHREADS={1, 2, 4, 8, 16}
-BATCH={64, 128, 256, 512, 1024}
+SIZE={64, 256, 1024}
+NTHREADS={1, 4, 16}
+BATCH={64, 256, 1024}
 CAPACITY={256}
-LISTS_PER_CORE={1,2,4,8,16}
+LISTS_PER_CORE={1,4,16}
 MEMPOOL_GPU={true,false}
 PERSISTENT_KERNEL={true,false}
 
@@ -18,7 +18,7 @@ PERSISTENT_KERNEL={true,false}
 graph_force_diagonal_labels=true
 var_lim={RESULT-RX-RATE:0,RESULT-LOSE-RATE:0}
 timeout=60
-n_runs=3
+n_runs=2
 
 
 %script sudo=true
