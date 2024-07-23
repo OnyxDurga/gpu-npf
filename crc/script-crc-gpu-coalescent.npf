@@ -3,7 +3,7 @@ CRC on GPU using coalescent implementation
 
 
 %variables
-RATE={100, 0.1}    // pktgen latency computation does not work with CRC
+RATE={100, 0.1}
 
 SIZE={128, 256, 1024}
 NTHREADS={1, 4, 16}
