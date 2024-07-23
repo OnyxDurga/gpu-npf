@@ -13,23 +13,10 @@ do
     esac
 done
 
-# iplookup
+### Baseline 
 
-# ../npf/npf-run.py --test iplookup/script-iplookup-cpu.npf --cluster joyeux=sam --show-full --show-all $RETEST
+../npf/npf-run.py --test baseline/scripts-baseline.npf --cluster joyeux=sam --show-full --show-all $RETEST --single-output baseline.csv
 
-# ../npf/npf-run.py --test script-iplookup-cpu-lat.npf --cluster joyeux=joyeux --show-full --show-all $RETEST
-
-# ../npf/npf-run.py --test iplookup/script-iplookup-gpu.npf --cluster joyeux=sam --show-full --show-all $RETEST
-
-# ../npf/npf-run.py --test script-iplookup-gpu-lat.npf --cluster joyeux=joyeux --show-full --show-all $RETEST
-
-# ../npf/npf-run.py --test script-iplookup-with-copy.npf --cluster joyeux=joyeux --show-full --show-all $RETEST
-
-# ../npf/npf-run.py --test script-iplookup-zero-copy.npf --cluster joyeux=joyeux --show-full --show-all $RETEST
-
-
-
-# ../npf/npf-run.py --test script-iplookup-dpu.npf --cluster joyeux=joyeux smartnic=smartnic --show-full --show-all $RETEST
 
 ### EtherMirror
 
@@ -38,23 +25,24 @@ done
 # ../npf/npf-run.py --test ethermirror/script-ethermirror-gpu-coalescent.npf --cluster joyeux=sam --show-full --show-all $RETEST --single-output ethermirror-gpu-coalescent.csv
 # ../npf/npf-run.py --test ethermirror/script-ethermirror-gpu-mw.npf --cluster joyeux=sam --show-full --show-all $RETEST --single-output ethermirror-gpu-mw.csv
 
-# ## CRC
+
+### CRC
 
 # ../npf/npf-run.py --test crc/script-crc-cpu.npf --cluster joyeux=sam --show-full --show-all $RETEST --single-output crc-cpu.csv
 # ../npf/npf-run.py --test crc/script-crc-gpu-commlist.npf --cluster joyeux=sam --show-full --show-all $RETEST --single-output crc-gpu-commlist.csv
 # ../npf/npf-run.py --test crc/script-crc-gpu-coalescent.npf --cluster joyeux=sam --show-full --show-all $RETEST --single-output crc-gpu-coalescent.csv
 
-## IP Lookup
+
+### IP Lookup
 
 # ../npf/npf-run.py --test iplookup/script-iplookup-cpu.npf --cluster joyeux=sam --show-full --show-all $RETEST --single-output iplookup-cpu.csv
 # ../npf/npf-run.py --test iplookup/script-iplookup-gpu-commlist.npf --cluster joyeux=sam --show-full --show-all $RETEST --single-output iplookup-gpu-commlist.csv
-../npf/npf-run.py --test iplookup/script-iplookup-gpu-coalescent.npf --cluster joyeux=sam --show-full --show-all $RETEST --single-output iplookup-gpu-coalescent.csv
+# ../npf/npf-run.py --test iplookup/script-iplookup-gpu-coalescent.npf --cluster joyeux=sam --show-full --show-all $RETEST --single-output iplookup-gpu-coalescent.csv
+
 
 ### Doca
 
-../npf/npf-run.py --test script-doca.npf --cluster joyeux=sam --show-full --show-all $RETEST --single-output iplookup-doca.csv
-
-
+# ../npf/npf-run.py --test script-doca.npf --cluster joyeux=sam --show-full --show-all $RETEST --single-output iplookup-doca.csv
 
 
 sudo killall -9 click
