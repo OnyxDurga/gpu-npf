@@ -32,7 +32,7 @@ done
 
 ### Doca
 
-# ../npf/npf-run.py --test script-doca.npf --cluster joyeux=sam --show-full --show-all $RETEST --single-output iplookup-doca.csv
+# ../npf/npf-run.py --test doca/script-doca.npf --cluster joyeux=sam --show-full --show-all $RETEST --single-output iplookup-doca.csv
 
 
 sudo killall -9 click
