@@ -32,7 +32,8 @@ done
 
 ### Doca
 
-# ../npf/npf-run.py --test doca/script-doca.npf --cluster joyeux=sam --show-full --show-all $RETEST --single-output iplookup-doca.csv
+../npf/npf-compare.py "local+doca:DOCA version" --test doca/script-doca.npf --cluster joyeux=sam --show-full --show-all --single-output results-csv/doca.csv --statistics $RETEST
+
 
 
 sudo killall -9 click
