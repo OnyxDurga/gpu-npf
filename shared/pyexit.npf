@@ -1,0 +1,5 @@
+%pyexit
+
+// Lose rate can get negative if more packets are received than send; 
+if RESULTS.get("LOSE-RATE") == None:
+    RESULTS["LOSE-RATE"] = 0

@@ -1,0 +1,6 @@
+%script sudo=true
+killall -9 click
+sleep 1
+export LD_LIBRARY_PATH=/etinfo/users/2021/mvanliefde/dpdk/install_sauron/lib/x86_64-linux-gnu/
+export GDRCOPY_PATH_L=/etinfo/users/2021/mvanliefde/gdrcopy-sauron/lib/
+sudo -E LD_LIBRARY_PATH=$LD_LIBRARY_PATH GDRCOPY_PATH_L=$GDRCOPY_PATH_L /etinfo/users/2021/mvanliefde/fastclick-gpu/bin/click --dpdk -l 16-31 -n 4 -a c1:00.0 -a a1:00.0 --file-prefix npf -- ${FILE}

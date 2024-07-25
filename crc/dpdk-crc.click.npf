@@ -1,0 +1,17 @@
+%file dpdk-crc.click
+
+// Size of the mempool to allocate
+define ($nb_mbuf 65535)
+
+// Number of descriptors per ring
+define ($ndesc 2048)
+
+// number of cores receiving and processing packets
+define ($maxthreads ${NTHREADS})
+
+info :: DPDKInfo($nb_mbuf)
+
+FromDPDKDevice(0, NDESC $ndesc, MAXTHREADS $maxthreads, NUMA false) 
+    -> SetCRC32
+    -> EtherMirror()
+    -> ToDPDKDevice(0, NDESC $ndesc, MAXTHREADS $maxthreads, BLOCKING false)

@@ -13,31 +13,21 @@ do
     esac
 done
 
-### Baseline 
 
-../npf/npf-run.py --test baseline/scripts-baseline.npf --cluster joyeux=sam --show-full --show-all $RETEST --single-output baseline.csv
+### Baseline 
+../npf/npf-run.py --test baseline/script-baseline.npf --cluster joyeux=sam --show-full --show-all $RETEST --single-output results-csv/baseline.csv
 
 
 ### EtherMirror
-
-# ../npf/npf-run.py --test ethermirror/script-ethermirror-cpu.npf --cluster joyeux=sam --show-full --show-all $RETEST --single-output ethermirror-cpu.csv
-# ../npf/npf-run.py --test ethermirror/script-ethermirror-gpu-commlist.npf --cluster joyeux=sam --show-full --show-all $RETEST --single-output ethermirror-gpu-commlist.csv
-# ../npf/npf-run.py --test ethermirror/script-ethermirror-gpu-coalescent.npf --cluster joyeux=sam --show-full --show-all $RETEST --single-output ethermirror-gpu-coalescent.csv
-# ../npf/npf-run.py --test ethermirror/script-ethermirror-gpu-mw.npf --cluster joyeux=sam --show-full --show-all $RETEST --single-output ethermirror-gpu-mw.csv
+../npf/npf-compare.py "local+cpu:CPU version" "local+gpu-coalescent:GPU Coalescent version" "local+gpu-commlist:GPU Communication List version" "local+gpu-mw:GPU Master-Workers version" --test ethermirror/script-ethermirror.npf --cluster joyeux=sam --show-full --show-all --single-output results-csv/ethermirror.csv --statistics $RETEST
 
 
 ### CRC
-
-# ../npf/npf-run.py --test crc/script-crc-cpu.npf --cluster joyeux=sam --show-full --show-all $RETEST --single-output crc-cpu.csv
-# ../npf/npf-run.py --test crc/script-crc-gpu-commlist.npf --cluster joyeux=sam --show-full --show-all $RETEST --single-output crc-gpu-commlist.csv
-# ../npf/npf-run.py --test crc/script-crc-gpu-coalescent.npf --cluster joyeux=sam --show-full --show-all $RETEST --single-output crc-gpu-coalescent.csv
+../npf/npf-compare.py "local+cpu:CPU version" "local+gpu-coalescent:GPU Coalescent version" "local+gpu-commlist:GPU Communication List version" --test crc/script-crc.npf --cluster joyeux=sam --show-full --show-all --single-output results-csv/crc.csv --statistics $RETEST
 
 
 ### IP Lookup
-
-# ../npf/npf-run.py --test iplookup/script-iplookup-cpu.npf --cluster joyeux=sam --show-full --show-all $RETEST --single-output iplookup-cpu.csv
-# ../npf/npf-run.py --test iplookup/script-iplookup-gpu-commlist.npf --cluster joyeux=sam --show-full --show-all $RETEST --single-output iplookup-gpu-commlist.csv
-# ../npf/npf-run.py --test iplookup/script-iplookup-gpu-coalescent.npf --cluster joyeux=sam --show-full --show-all $RETEST --single-output iplookup-gpu-coalescent.csv
+../npf/npf-compare.py "local+cpu:CPU version" "local+gpu-coalescent:GPU Coalescent version" "local+gpu-commlist:GPU Communication List version" --test iplookup/script-iplookup.npf --cluster joyeux=sam --show-full --show-all --single-output results-csv/iplookup.csv --statistics $RETEST
 
 
 ### Doca
