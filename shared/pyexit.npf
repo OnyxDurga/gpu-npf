@@ -3,3 +3,12 @@
 // Lose rate can get negative if more packets are received than send; 
 if RESULTS.get("LOSE-RATE") == None:
     RESULTS["LOSE-RATE"] = 0
+
+if RESULTS.get("RX-RATE-PPS") == None:
+    RESULTS["RX-RATE-PPS"] = 0
+
+if RESULTS.get("RX-RATE-MBPS") == None:
+    RESULTS["RX-RATE-MBPS"] = 0
+
+if RESULTS.get("AVG-LAT") == None:
+    RESULTS["AVG-LAT"] = 0

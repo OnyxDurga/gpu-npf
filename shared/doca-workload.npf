@@ -1,0 +1,4 @@
+%script sudo=true
+killall -9 doca_gpunetio_simple_receive
+sleep 1
+sudo /opt/mellanox/doca/samples/doca_gpunetio/gpunetio_simple_receive/build/doca_gpunetio_simple_receive -n c1:00.0 -g a1:00.0 -q ${LISTSorQUEUES_PER_CORE} -w ${WORKLOAD}

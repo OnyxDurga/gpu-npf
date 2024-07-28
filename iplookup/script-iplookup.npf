@@ -8,18 +8,20 @@ cpu:FILE={dpdk-iplookup.click}
 gpu-coalescent:FILE={gpu-iplookup-coalescent.click}
 gpu-commlist:FILE={gpu-iplookup-commlist.click}
 
+gpu-doca:WORKLOAD={1}
+
 %variables
 
 // CPU and GPU
-cpu|gpu-coalescent|gpu-commlist:RATE={100, 0.1}
-cpu|gpu-coalescent|gpu-commlist:SIZE={64, 256, 1024}
+cpu|gpu-coalescent|gpu-commlist|gpu-doca:RATE={100, 0.1}
+cpu|gpu-coalescent|gpu-commlist|gpu-doca:SIZE={64, 256, 1024}
 cpu|gpu-coalescent|gpu-commlist:NTHREADS={1, 4, 16}
 cpu|gpu-coalescent|gpu-commlist:TABLE={0, 3, 5}
 
 // GPU
 gpu-coalescent|gpu-commlist:BATCH={64, 256, 1024}
 gpu-coalescent|gpu-commlist:CAPACITY={256}
-gpu-coalescent|gpu-commlist:LISTSorQUEUES_PER_CORE={1,4,16}
+gpu-coalescent|gpu-commlist|gpu-doca:LISTSorQUEUES_PER_CORE={1,4,16}
 
 // Only Coalescent
 gpu-coalescent:ZEROCOPY={true,false}
@@ -30,14 +32,16 @@ gpu-commlist:PERSISTENT_KERNEL={true,false}
 
 
 %config
+accept_zero={LOSE-RATE,AVG-LAT}
 graph_force_diagonal_labels=true
 timeout=60
 n_runs=2
 
 
-%cpu|gpu-coalescent|gpu-commlist|gpu-mw:include ../shared/script-workload.npf
+%cpu|gpu-coalescent|gpu-commlist:include ../shared/script-workload.npf
+%gpu-doca:include ../shared/doca-workload.npf
 
-%cpu|gpu-coalescent|gpu-commlist|gpu-mw:include ../shared/script-generator.npf
+%cpu|gpu-coalescent|gpu-commlist|gpu-doca:include ../shared/script-generator.npf
 
 %cpu:include dpdk-iplookup.click
 %gpu-coalescent:include gpu-iplookup-coalescent.click
