@@ -22,7 +22,7 @@ done
 ../npf/npf-compare.py "local+cpu:CPU version" "local+gpu-coalescent:GPU Coalescent version" "local+gpu-commlist:GPU Communication List version" "local+gpu-mw:GPU Master-Workers version" "local+gpu-doca:DOCA version" --test ethermirror/script-ethermirror.npf --cluster joyeux=sam --show-full --show-all --single-output results-csv/ethermirror.csv --statistics $RETEST
 
 ### IP Lookup
-../npf/npf-compare.py "local+cpu:CPU version" "local+gpu-coalescent:GPU Coalescent version" "local+gpu-commlist:GPU Communication List version" --test iplookup/script-iplookup.npf "local+gpu-doca:DOCA version" --cluster joyeux=sam --show-full --show-all --single-output results-csv/iplookup.csv --statistics $RETEST
+../npf/npf-compare.py "local+cpu:CPU version" "local+gpu-coalescent:GPU Coalescent version" "local+gpu-commlist:GPU Communication List version" "local+gpu-doca:DOCA version" --test iplookup/script-iplookup.npf --cluster joyeux=sam --show-full --show-all --single-output results-csv/iplookup.csv --statistics $RETEST
 
 ### CRC
 ../npf/npf-compare.py "local+cpu:CPU version" "local+gpu-coalescent:GPU Coalescent version" "local+gpu-commlist:GPU Communication List version" --test crc/script-crc.npf --cluster joyeux=sam --show-full --show-all --single-output results-csv/crc.csv --statistics $RETEST
