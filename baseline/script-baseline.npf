@@ -6,15 +6,18 @@ FILE={dpdk-baseline.click}
 RATE={100}  // Latency computation needs an Ethermirror
 
 %variables
-SIZE={64, 256, 1024}
-NTHREADS={1, 4, 16}
-
+SIZE=[64*1024]
+NTHREADS=[1*16]
 
 %config
-graph_force_diagonal_labels=true
-timeout=60
-n_runs=2
+var_lim={RX-RATE-PPS:0-50,RX-RATE-MBPS:0-100,LOSE-RATE:0-1}
+var_names={LOSE-RATE:Loss rate,RX-RATE-PPS:Throughput,RX-RATE-MBPS:Throughput,SIZE:Packet size (B),NTHREADS:Number of threads}
+var_divider={RX-RATE-PPS:1000000, RX-RATE-MBPS:1000}
+var_format={RX-RATE-PPS:%dMpps, RX-RATE-MBPS:%dGbps}
 
+accept_zero={LOSE-RATE}
+timeout=60
+n_runs=3
 
 %include ../shared/script-workload.npf
 
