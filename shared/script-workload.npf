@@ -1,5 +1,5 @@
 %script sudo=true
-killall -9 click
+killall -9 click doca_gpunetio_simple_receive
 sleep 1
 export LD_LIBRARY_PATH=/etinfo/users/2021/mvanliefde/dpdk/install_sauron/lib/x86_64-linux-gnu/
 export GDRCOPY_PATH_L=/etinfo/users/2021/mvanliefde/gdrcopy-sauron/lib/
