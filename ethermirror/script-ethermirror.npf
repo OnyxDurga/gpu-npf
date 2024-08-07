@@ -11,12 +11,13 @@ gpu-mw:FILE={gpu-bounce-mw.click}
 
 gpu-doca:WORKLOAD={0}
 
+
 %variables
 
-// CPU and GPU
-cpu|gpu-coalescent|gpu-commlist|gpu-mw|gpu-doca:RATE={0.1}
-cpu|gpu-coalescent|gpu-commlist|gpu-mw|gpu-doca:SIZE=[64*1024]
-cpu|gpu-coalescent|gpu-commlist|gpu-mw:NTHREADS=[1*4]
+// CPU, DPU and GPU
+cpu|dpu|gpu-coalescent|gpu-commlist|gpu-mw|gpu-doca:RATE={100}
+cpu|dpu|gpu-coalescent|gpu-commlist|gpu-mw|gpu-doca:SIZE=[64*1024]
+cpu|dpu|gpu-coalescent|gpu-commlist|gpu-mw:NTHREADS=[1*4]
 
 // GPU
 gpu-coalescent|gpu-commlist|gpu-mw:BATCH={1024}
@@ -31,6 +32,9 @@ gpu-coalescent:ZEROCOPY={false}
 gpu-commlist:MEMPOOL_GPU={false}
 gpu-commlist:PERSISTENT_KERNEL={true}
 
+// Only DPU
+dpu:NDESC=256 //[128*512]
+
 
 %config
 var_lim={RX-RATE-PPS:0-50,RX-RATE-MBPS:0-100,LOSE-RATE:0-1,AVG-LAT:1-10000}
@@ -42,9 +46,13 @@ var_log_base={AVG-LAT:10}
 
 graph_serie={SIZE}
 graph_type=barplot
-graph_series_sort=max
-graph_legend_loc=lower right
-
+graph_legend_loc=outer upper center
+graph_legend_ncol={2}
+graph_tick_params={direction:in,which:both,axis:both,grid_linestyle:dotted,bottom:true,top:true,right:true,left:true,grid_color:#444444}
+var_grid=true
+graph_fillstyle=none
+graph_legend_params={fancybox:0,edgecolor:black,framealpha:1.0}
+graph_color={1,3,4,4,4,2}
 
 accept_zero={LOSE-RATE,AVG-LAT}
 timeout=60
@@ -53,8 +61,10 @@ n_runs=3
 
 %cpu|gpu-coalescent|gpu-commlist|gpu-mw:include ../shared/script-workload.npf
 %gpu-doca:include ../shared/doca-workload.npf
+%dpu:include workload-dpu.npf
 
 %cpu|gpu-coalescent|gpu-commlist|gpu-mw|gpu-doca:include ../shared/script-generator.npf
+%dpu:include ../shared/script-generator-dpu.npf
 
 %cpu:include dpdk-bounce.click
 %gpu-coalescent:include gpu-bounce-coalescent.click
@@ -62,5 +72,6 @@ n_runs=3
 %gpu-mw:include gpu-bounce-mw.click
 
 %include ../shared/cfg.lua
+%dpu:include ../shared/cfg-dpu.lua
 
 %include ../shared/pyexit.npf
