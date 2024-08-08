@@ -1,0 +1,6 @@
+%script@smartnic sudo=true
+
+killall -9 click
+sleep 1
+pwd
+sudo /home/ubuntu/fastclick_dpu/bin/click --dpdk -c 0xff -n 4 --file-prefix npf -- -e "FromDPDKDevice(0, NDESC ${NDESC}, MAXTHREADS ${NTHREADS}) -> EtherMirror() -> Strip(14) -> GetIPAddress(16) -> LinearIPLookup(LOOKUP_TABLE ${TABLE}) -> Unstrip(14) -> ToDPDKDevice(0, NDESC ${NDESC}, MAXTHREADS ${NTHREADS})"

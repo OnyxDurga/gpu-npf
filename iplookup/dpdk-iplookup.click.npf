@@ -11,10 +11,10 @@ define ($threads ${NTHREADS})
 
 info :: DPDKInfo($nb_mbuf)
 
-FromDPDKDevice(0, NDESC $ndesc, MAXTHREADS $threads)
+FromDPDKDevice(0, NDESC $ndesc, MAXTHREADS $threads, NUMA false)
         -> EtherMirror
         -> Strip(14)
         -> GetIPAddress(16)
         -> r :: LinearIPLookup(LOOKUP_TABLE ${TABLE})
         -> Unstrip(14)
-        -> ToDPDKDevice(0, NDESC $ndesc, MAXTHREADS $threads);
+        -> ToDPDKDevice(0, NDESC $ndesc, MAXTHREADS $threads, BLOCKING false);
