@@ -12,6 +12,7 @@ define ($maxthreads ${NTHREADS})
 info :: DPDKInfo($nb_mbuf)
 
 FromDPDKDevice(0, NDESC $ndesc, MAXTHREADS $maxthreads, NUMA false) 
+    -> EtherMirror
     -> SetCRC32
-    -> EtherMirror()
+    -> Trim(4)
     -> ToDPDKDevice(0, NDESC $ndesc, MAXTHREADS $maxthreads, BLOCKING false)

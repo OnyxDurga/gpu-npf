@@ -15,7 +15,7 @@ gpu-doca:WORKLOAD={0}
 %variables
 
 // CPU, DPU and GPU
-cpu|dpu|gpu-coalescent|gpu-commlist|gpu-mw|gpu-doca:RATE={100}
+cpu|dpu|gpu-coalescent|gpu-commlist|gpu-mw|gpu-doca:RATE={0.1}
 cpu|dpu|gpu-coalescent|gpu-commlist|gpu-mw|gpu-doca:SIZE=[64*1024]
 cpu|dpu|gpu-coalescent|gpu-commlist|gpu-mw:NTHREADS=[1*4]
 
@@ -38,16 +38,18 @@ dpu:NDESC=256 //[128*512]
 
 %config
 var_lim={RX-RATE-PPS:0-50,RX-RATE-MBPS:0-100,LOSE-RATE:0-1,AVG-LAT:1-10000}
-var_names={LOSE-RATE:Loss rate,AVG-LAT:Average Latency,RX-RATE-PPS:Throughput,RX-RATE-MBPS:Throughput,SIZE:Packet size [B],NTHREADS:Number of threads,BATCH: Batch size,CAPACITY: List capacity,LISTSorQUEUES_PER_CORE: Number of lists per core,ZEROCOPY: Zerocopy,MEMPOOL_GPU: Memory pool on GPU,PERSISTENT_KERNEL: Persistent kernels,QUEUES:Number of queues}
-var_divider={RX-RATE-PPS:1000000, RX-RATE-MBPS:1000, AVG-LAT:0.000001}
+var_names={LOSE-RATE:Loss rate,AVG-LAT:Average Latency,RX-RATE-PPS:Throughput,RX-RATE-MBPS:Throughput,SIZE:Packet size (B),NTHREADS:Number of threads,BATCH: Batch size,CAPACITY: List capacity,LISTSorQUEUES_PER_CORE: Number of lists per core,ZEROCOPY: Zerocopy,MEMPOOL_GPU: Memory pool on GPU,PERSISTENT_KERNEL: Persistent kernels,QUEUES:Number of queues}
+var_divider={RX-RATE-PPS:1000000, RX-RATE-MBPS:1000, AVG-LAT:0.000001, GPU-POWER:10}
 var_format={RX-RATE-PPS:%dMpps, RX-RATE-MBPS:%dGbps, AVG-LAT:%dµs}
 var_log={AVG-LAT}
 var_log_base={AVG-LAT:10}
 
+result_add={GPU-POWER}
+
 graph_serie={SIZE}
 graph_type=barplot
 graph_legend_loc=outer upper center
-graph_legend_ncol={2}
+graph_legend_ncol={3}
 graph_tick_params={direction:in,which:both,axis:both,grid_linestyle:dotted,bottom:true,top:true,right:true,left:true,grid_color:#444444}
 var_grid=true
 graph_fillstyle=none
@@ -62,6 +64,8 @@ n_runs=3
 %cpu|gpu-coalescent|gpu-commlist|gpu-mw:include ../shared/script-workload.npf
 %gpu-doca:include ../shared/doca-workload.npf
 %dpu:include workload-dpu.npf
+
+%include ../shared/script-power.npf
 
 %cpu|gpu-coalescent|gpu-commlist|gpu-mw|gpu-doca:include ../shared/script-generator.npf
 %dpu:include ../shared/script-generator-dpu.npf

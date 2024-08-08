@@ -26,7 +26,8 @@ define ($max_pkt_size ${SIZE})
 info :: DPDKInfo($nb_mbuf)
 
 FromDPDKDevice(0, NDESC $ndesc, MAXTHREADS $maxthreads, BURST $burst, NUMA false) 
-    -> EtherMirror()
+    -> EtherMirror
     -> MinBatch($minbatch, TIMER 1000) 
     -> GPUSetCRC32Coalescent(MAX_PKT_SIZE $max_pkt_size, VERBOSE false, CAPACITY $capacity, MAX_BATCH $batch, QUEUES_PER_CORE $queues_per_core, ZEROCOPY $zerocopy) 
+    -> Trim(4)
     -> ToDPDKDevice(0, NDESC $ndesc, MAXTHREADS $maxthreads, BLOCKING false)

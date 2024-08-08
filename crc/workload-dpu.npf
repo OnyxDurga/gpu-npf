@@ -1,0 +1,6 @@
+%script@smartnic sudo=true
+
+killall -9 click
+sleep 1
+
+sudo /home/ubuntu/fastclick_dpu/bin/click --dpdk -c 0xff -n 4 --file-prefix npf -- -e "FromDPDKDevice(0, NDESC ${NDESC}, MAXTHREADS ${NTHREADS}, NUMA false) -> EtherMirror -> SetCRC32 -> Trim(4) -> ToDPDKDevice(0, NDESC $NDESC, MAXTHREADS $NTHREADS, BLOCKING false)"

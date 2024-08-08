@@ -1,0 +1,7 @@
+%script sudo=false delay=5
+for _ in $(seq 1 10); do
+    sleep 1
+    gpupower=$(nvidia-smi --query-gpu "power.draw" --format=csv,noheader,nounits)
+    echo "RESULT-GPU-POWER $gpupower"
+done
+sleep 20

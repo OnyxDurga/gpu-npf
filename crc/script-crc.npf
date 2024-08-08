@@ -13,39 +13,66 @@ gpu-doca:WORKLOAD={2}
 %variables
 
 // CPU and GPU
-cpu|gpu-coalescent|gpu-commlist|gpu-doca:RATE={100, 0.1}
-cpu|gpu-coalescent|gpu-commlist|gpu-doca:SIZE={64, 256, 1024}
-cpu|gpu-coalescent|gpu-commlist:NTHREADS={1, 4, 16}
+cpu|dpu|gpu-coalescent|gpu-commlist|gpu-doca:RATE={100}
+cpu|dpu|gpu-coalescent|gpu-commlist|gpu-doca:SIZE=[64*1024]
+cpu|dpu:NTHREADS=[1*4]
+gpu-coalescent|gpu-commlist:NTHREADS=[1*4]
 
 // GPU
-gpu-coalescent|gpu-commlist:BATCH={64, 256, 1024}
+gpu-coalescent|gpu-commlist:BATCH={1024}
 gpu-coalescent|gpu-commlist:CAPACITY={256}
-gpu-coalescent|gpu-commlist|gpu-doca:LISTSorQUEUES_PER_CORE={1,4,16}
+gpu-coalescent|gpu-commlist:LISTSorQUEUES_PER_CORE=1 //[1*4]
+gpu-doca:QUEUES=[1*8]
 
 // Only Coalescent
-gpu-coalescent:ZEROCOPY={true,false}
+gpu-coalescent:ZEROCOPY={false}
 
 // Only Commlist
-gpu-commlist:MEMPOOL_GPU={true,false}
-gpu-commlist:PERSISTENT_KERNEL={true,false}
+gpu-commlist:MEMPOOL_GPU={true}
+gpu-commlist:PERSISTENT_KERNEL={true}
+
+dpu:NDESC=256 //[128*512]
 
 
 %config
+var_lim={RX-RATE-PPS:0-50,RX-RATE-MBPS:0-100,LOSE-RATE:0-1,AVG-LAT:1-10000}
+var_names={LOSE-RATE:Loss rate,AVG-LAT:Average Latency,RX-RATE-PPS:Throughput,RX-RATE-MBPS:Throughput,SIZE:Packet size [B],NTHREADS:Number of threads,BATCH: Batch size,CAPACITY: List capacity,LISTSorQUEUES_PER_CORE: Number of lists per core,ZEROCOPY: Zerocopy,MEMPOOL_GPU: Memory pool on GPU,PERSISTENT_KERNEL: Persistent kernels,QUEUES:Number of queues}
+var_divider={RX-RATE-PPS:1000000, RX-RATE-MBPS:1000, AVG-LAT:0.000001, GPU-POWER:10}
+var_format={RX-RATE-PPS:%dMpps, RX-RATE-MBPS:%dGbps, AVG-LAT:%dµs}
+var_log={AVG-LAT}
+var_log_base={AVG-LAT:10}
+
+result_add={GPU-POWER}
+
+graph_serie={SIZE}
+graph_type=barplot
+graph_legend_loc=outer upper center
+graph_legend_ncol={2}
+graph_tick_params={direction:in,which:both,axis:both,grid_linestyle:dotted,bottom:true,top:true,right:true,left:true,grid_color:#444444}
+var_grid=true
+graph_fillstyle=none
+graph_legend_params={fancybox:0,edgecolor:black,framealpha:1.0}
+graph_color={1,3,4,4,4,2}
+
 accept_zero={LOSE-RATE,AVG-LAT}
-graph_force_diagonal_labels=true
 timeout=60
-n_runs=2
+n_runs=3
 
 
 %cpu|gpu-coalescent|gpu-commlist:include ../shared/script-workload.npf
 %gpu-doca:include ../shared/doca-workload.npf
+%dpu:include workload-dpu.npf
 
 %cpu|gpu-coalescent|gpu-commlist|gpu-doca:include ../shared/script-generator.npf
+%dpu:include ../shared/script-generator-dpu.npf
 
 %cpu:include dpdk-crc.click
 %gpu-coalescent:include gpu-crc-coalescent.click
 %gpu-commlist:include gpu-crc-commlist.click
 
+%gpu-doca|gpu-coalescent|gpu-commlist:include ../shared/script-power.npf
+
 %include ../shared/cfg.lua
+%dpu:include ../shared/cfg-dpu.lua
 
 %include ../shared/pyexit.npf
