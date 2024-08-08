@@ -98,5 +98,7 @@ print(" RESULT-RX-RATE-PPS " .. math.floor(num_rx / TIME))
 print(" RESULT-RX-RATE-MBPS " .. mbps_rx)
 print(" RESULT-LOSE-RATE " .. 1-(num_rx / (num_tx)) .. "")
 print(" RESULT-AVG-LAT " .. avg_us .. "us")
+rate = pktgen.portStats(0, "rate")[0]
+print(" RESULT-RX-GOODPUT-GBPS-PKTGEN " .. (rate.mbits_rx // 1000) .. "")
 
 pktgen.quit()
