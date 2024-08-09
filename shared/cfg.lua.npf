@@ -46,6 +46,7 @@ pktgen.range.dst_ip("0", "max", "255.255.255.255")
 
 pktgen.range.ip_proto("0", "udp")
 
+pktgen.set("all", "size", PKT_SIZE);
 pktgen.range.pkt_size("0", "start", PKT_SIZE)
 pktgen.range.pkt_size("0", "inc", 0)
 pktgen.range.pkt_size("0", "min", PKT_SIZE)
