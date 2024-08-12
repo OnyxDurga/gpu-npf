@@ -157,7 +157,7 @@ if __name__=="__main__":
             ax.set_xlabel('GPU Batching Size')
             ax.set_xticklabels(xlabels)
             ax.set_xticks(positions + BAR_WIDTH*((len(files)-1)/2) + spacing * BAR_WIDTH)
-            ax.legend(ncol=3, loc="upper center", bbox_to_anchor=(0, 1, 1, 0), fancybox=0,edgecolor='black',framealpha=1.0)
+            # ax.legend(ncol=3, loc="upper center", bbox_to_anchor=(0, 1, 1, 0), fancybox=0,edgecolor='black',framealpha=1.0)
 
         ax_thr.set_ylabel('Throughput')
         ax_thr.yaxis.set_major_formatter(ticker.FormatStrFormatter("%dGbps"))
