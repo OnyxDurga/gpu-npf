@@ -145,10 +145,7 @@ if __name__=="__main__":
                 print(f"Warning: There is a lose rate value greater than 0.1 for the file {file}, see below:")
                 print(df_lat)
         
-            # ax_lat.bar(positions + (i) * BAR_WIDTH + spacing * BAR_WIDTH, height / 1000, BAR_WIDTH, yerr=yerr/ 1000, label=label, zorder=3, color=COLORS[implem_nr])
             ax_lat.bar(positions + (i) * BAR_WIDTH + spacing * BAR_WIDTH, height / 0.000001, BAR_WIDTH, yerr=yerr/ 0.000001, label=label, zorder=3, color=COLORS[implem_nr])
-
-            # ax_lat.errorbar(positions + BAR_WIDTH*((len(files)-1)/2) + spacing * BAR_WIDTH, height / 0.000001, yerr/ 0.000001, label=label, zorder=4, color=COLORS_2[implem_nr], fmt=f"{MARKER[implem_nr]}-", mfc='none', mec=COLORS_2[implem_nr])
 
             if max_y < (height + yerr).max():
                 max_y = (height + yerr).max()
@@ -156,15 +153,14 @@ if __name__=="__main__":
         for ax in (ax_thr, ax_lat):
             ax.set_xlabel('GPU Batching Size')
             ax.set_xticklabels(xlabels)
-            ax.set_xticks(positions + BAR_WIDTH*((len(files)-1)/2) + spacing * BAR_WIDTH)
+            ax.set_xticks(positions + BAR_WIDTH*((len(files))/2) + spacing * BAR_WIDTH)
+            ax.tick_params(direction='in',which='both',axis='both',grid_linestyle='dotted',bottom='true',top='true',right='true',left='true',grid_color='#444444')
             # ax.legend(ncol=3, loc="upper center", bbox_to_anchor=(0, 1, 1, 0), fancybox=0,edgecolor='black',framealpha=1.0)
 
         ax_thr.set_ylabel('Throughput')
         ax_thr.yaxis.set_major_formatter(ticker.FormatStrFormatter("%dGbps"))
         ax_lat.set_ylabel('Zero-Loss Throughput Latency')
         ax_lat.yaxis.set_major_formatter(ticker.FormatStrFormatter("%dµs"))
-
-        ax_lat.tick_params(direction='in',which='both',axis='both',grid_linestyle='dotted',bottom='true',top='true',right='true',left='true',grid_color='#444444')
 
         # lines_thr, labels_thr = ax_thr.get_legend_handles_labels()
         # lines_lat, labels_lat = ax_lat.get_legend_handles_labels()
