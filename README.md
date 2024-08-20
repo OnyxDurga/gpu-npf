@@ -1,6 +1,6 @@
 # GPU NPF
 
-This repo was used for our work on [GPU-based packet processing](https://dial.uclouvain.be/downloader/downloader_thesis.php?pid=thesis:45872&datastream=PDF_01&key=7d2f4507527b7a32725824c3f3467a3d).
+This repo was used for our work on [GPU-based packet processing](http://hdl.handle.net/2078.1/thesis:45872).
 
 The measures in this work were made using the scripts in this repo. All the scripts require [NPF](https://github.com/tbarbette/npf). NPF needs to be in the same folder as this repo or be in the PATH.
 
