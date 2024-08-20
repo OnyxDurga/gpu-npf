@@ -18,12 +18,12 @@ done
 ../npf/npf-compare.py "local" --test baseline/script-baseline.npf --cluster joyeux=sam --show-full --show-all --single-output results-csv/baseline.csv --graph-filename graphs/baseline
 
 ### EtherMirror
-../npf/npf-compare.py "local+cpu:CPU" "local+dpu:DPU" "local+gpu-doca:DOCA" "local+gpu-coalescent:GPU Coalescent" "local+gpu-commlist:GPU Communication List" "local+gpu-mw:GPU Master-Workers" --test ethermirror/script-ethermirror.npf --cluster joyeux=sam --show-full --show-all --single-output results-csv/ethermirror.csv --statistics $RETEST
+../npf/npf-compare.py "local+cpu:CPU" "local+dpu:DPU" "local+gpu-doca:DOCA" "local+gpu-coalescent:ROI" "local+gpu-commlist:CL" "local+gpu-mw:MW" --test ethermirror/script-ethermirror.npf --cluster joyeux=sam smartnic=bf2-jaskier --show-full --show-all --single-output results-csv/ethermirror.csv --statistics $RETEST
 
 ### IP Lookup
-../npf/npf-compare.py "local+cpu:CPU version" "local+gpu-coalescent:GPU Coalescent version" "local+gpu-commlist:GPU Communication List version" "local+gpu-doca:DOCA version" --test iplookup/script-iplookup.npf --cluster joyeux=sam --show-full --show-all --single-output results-csv/iplookup.csv --statistics $RETEST
+../npf/npf-compare.py "local+cpu:CPU" "local+dpu:DPU" "local+gpu-doca:DOCA" "local+gpu-coalescent:ROI" "local+gpu-commlist:CL" --test iplookup/script-iplookup.npf --cluster joyeux=sam smartnic=bf2-jaskier --show-full --show-all --single-output results-csv/iplookup.csv --statistics $RETEST
 
 ### CRC
-../npf/npf-compare.py "local+cpu:CPU version" "local+gpu-coalescent:GPU Coalescent version" "local+gpu-commlist:GPU Communication List version" --test crc/script-crc.npf --cluster joyeux=sam --show-full --show-all --single-output results-csv/crc.csv --statistics $RETEST
+../npf/npf-compare.py "local+cpu:CPU" "local+dpu:DPU" "local+gpu-doca:DOCA" "local+gpu-coalescent:ROI" "local+gpu-commlist:CL" --test crc/script-crc.npf --cluster joyeux=sam smartnic=bf2-jaskier --show-full --show-all --single-output results-csv/crc.csv --statistics $RETEST
 
 sudo killall -9 click
