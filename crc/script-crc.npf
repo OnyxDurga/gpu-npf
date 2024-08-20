@@ -13,40 +13,39 @@ gpu-doca:WORKLOAD={2}
 %variables
 
 // CPU and GPU
-cpu|dpu|gpu-coalescent|gpu-commlist|gpu-doca:RATE=[1-100#1]
-cpu|dpu|gpu-coalescent|gpu-commlist|gpu-doca:SIZE=[64*1024]
-cpu|dpu:NTHREADS=[1*8]
-gpu-coalescent|gpu-commlist:NTHREADS=[1*4]
+cpu|dpu|gpu-coalescent|gpu-commlist|gpu-doca:RATE=100 //[1-100#1]
+cpu|dpu|gpu-coalescent|gpu-commlist|gpu-doca:SIZE=64 //[64*1024]
+dpu:NTHREADS=4 //[1*8]
+cpu:NTHREADS=4 //[1*16]
+gpu-coalescent|gpu-commlist:NTHREADS=4 //[1*4]
 
 // GPU
-gpu-coalescent|gpu-commlist:BATCH={32, 1024}
-gpu-doca:BATCH={32, 2048}
+gpu-commlist:BATCH=1024 //[32*1024]
+gpu-coalescent:BATCH=1024 //[32*2048]
+gpu-doca:BATCH=2048 //[32*2048]
 gpu-coalescent|gpu-commlist:CAPACITY={256}
 gpu-coalescent|gpu-commlist:LISTSorQUEUES_PER_CORE=1 //[1*4]
-gpu-doca:QUEUES=[1*8]
+gpu-doca:QUEUES=8 //[1*8]
 
 // Only Coalescent
-gpu-coalescent:ZEROCOPY={false}
+gpu-coalescent:ZEROCOPY={false} //{true,false}
 
 // Only Commlist
-gpu-commlist:MEMPOOL_GPU={true}
-gpu-commlist:PERSISTENT_KERNEL={true}
+gpu-commlist:MEMPOOL_GPU={true} //{true,false}
+gpu-commlist:PERSISTENT_KERNEL={true} //{true,false}
 
 dpu:NDESC=256 //[128*512]
 
 
 %config
-var_lim={RX-RATE-PPS:0-50,RX-RATE-MBPS:0-100,LOSE-RATE:0-1,AVG-LAT:1-10000}
-var_names={LOSE-RATE:Loss rate,AVG-LAT:Average Latency,RX-RATE-PPS:Throughput,RX-RATE-MBPS:Throughput,SIZE:Packet size [B],NTHREADS:Number of threads,BATCH: Batch size,CAPACITY: List capacity,LISTSorQUEUES_PER_CORE: Number of lists per core,ZEROCOPY: Zerocopy,MEMPOOL_GPU: Memory pool on GPU,PERSISTENT_KERNEL: Persistent kernels,QUEUES:Number of queues}
+var_lim={RX-RATE-PPS:0-50,RX-RATE-MBPS:0-20,LOSE-RATE:0-1,AVG-LAT:0-6000, GPU-POWER:0-70}
+var_names={LOSE-RATE:Loss rate,AVG-LAT:Average Latency,RX-RATE-PPS:Throughput,RX-RATE-MBPS:Throughput,GPU-POWER:GPU Power Consumption,SIZE:Packet size [B],NTHREADS:Number of CPU cores,BATCH: Batch size,CAPACITY: List capacity,LISTSorQUEUES_PER_CORE: Number of lists per core,ZEROCOPY: Zerocopy,MEMPOOL_GPU: Memory pool on GPU,PERSISTENT_KERNEL: Persistent kernels,QUEUES:Number of queues}
 var_divider={RX-RATE-PPS:1000000, RX-RATE-MBPS:1000, AVG-LAT:0.000001, GPU-POWER:10}
-var_format={RX-RATE-PPS:%dMpps, RX-RATE-MBPS:%dGbps, AVG-LAT:%dµs}
-var_log={AVG-LAT}
-var_log_base={AVG-LAT:10}
-
+var_format={RX-RATE-PPS:%dMpps, RX-RATE-MBPS:%dGbps, AVG-LAT:%dµs, GPU-POWER:%dW}
 result_add={GPU-POWER}
 
-graph_serie={SIZE}
 graph_type=barplot
+graph_legend=false
 graph_legend_loc=outer upper center
 graph_legend_ncol={2}
 graph_tick_params={direction:in,which:both,axis:both,grid_linestyle:dotted,bottom:true,top:true,right:true,left:true,grid_color:#444444}
