@@ -1,6 +1,8 @@
 # GPU NPF
 
-This repo was used for our work on [GPU-based packet processing](http://hdl.handle.net/2078.1/thesis:45872).
+This repo was used for our work on GPU-based packet processing:
+
+Van Hauwaert, Romain ; Vanliefde, Maxime. GPU-based Packet Processing.  Ecole polytechnique de Louvain, Université catholique de Louvain, 2024. Prom. : Barbette, Tom. http://hdl.handle.net/2078.1/thesis:45872
 
 The measures in this work were made using the scripts in this repo. All the scripts require [NPF](https://github.com/tbarbette/npf). NPF needs to be in the same folder as this repo or be in the PATH.
 
